@@ -29,10 +29,12 @@ export function IOSNotification({
       ? `Você recebeu um pagamento de ${formatNotificationAmount(notification.amount, notification.currency)}`
       : notification.message;
 
+  const handleClick = variant === 'lockscreen' ? undefined : onDismiss;
+
   return (
     <div
       className={`${styles.notification} ${styles[variant]} ${animating ? styles.enter : ''} ${exiting ? styles.exit : ''}`}
-      onClick={onDismiss}
+      onClick={handleClick}
       role="alert"
     >
       <div className={styles.iconWrapper}>

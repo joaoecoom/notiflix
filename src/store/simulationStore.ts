@@ -6,6 +6,8 @@ import type {
   TimelineEntry,
   BulkGeneratorConfig,
   SimulationSettings,
+  SeedEntry,
+  SeedBulkGeneratorConfig,
 } from '../engines/simulation';
 import {
   createDefaultTimeline,
@@ -18,7 +20,11 @@ import {
   DEFAULT_SETTINGS,
   createEmptyMetrics,
 } from '../engines/simulation/types';
-import { createSeedNotifications } from '../engines/notification';
+import {
+  buildSeedNotifications,
+  createDefaultSeedTimeline,
+  generateBulkSeedTimeline,
+} from '../engines/notification';
 
 interface SimulationActions {
   setTimeline: (timeline: TimelineEntry[]) => void;
@@ -27,6 +33,13 @@ interface SimulationActions {
   removeTimelineEntry: (id: string) => void;
   duplicateTimelineEntry: (id: string) => void;
   generateBulk: (config: BulkGeneratorConfig) => void;
+  setSeedTimeline: (seedTimeline: SeedEntry[]) => void;
+  addSeedEntry: (entry: Omit<SeedEntry, 'id'>) => void;
+  updateSeedEntry: (id: string, updates: Partial<SeedEntry>) => void;
+  removeSeedEntry: (id: string) => void;
+  duplicateSeedEntry: (id: string) => void;
+  generateBulkSeed: (config: SeedBulkGeneratorConfig) => void;
+  rebuildSeedNotifications: () => void;
   updateSettings: (settings: Partial<SimulationSettings>) => void;
   startSimulation: () => void;
   stopSimulation: () => void;
@@ -44,6 +57,11 @@ interface SimulationActions {
 type SimulationStore = SimulationState & SimulationActions;
 
 const defaultTimeline = createDefaultTimeline();
+const defaultSeedTimeline = createDefaultSeedTimeline();
+
+function withSeedNotifications(seedTimeline: SeedEntry[]) {
+  return buildSeedNotifications(seedTimeline);
+}
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
   scenario: {
@@ -54,6 +72,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   events: timelineToEvents(defaultTimeline),
   timeline: defaultTimeline,
+  seedTimeline: defaultSeedTimeline,
   metrics: createEmptyMetrics(),
   notifications: [],
   isRunning: false,
@@ -62,7 +81,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   activeTab: 'home',
   viewMode: 'stripe',
   selectedCurrencyFilter: 'all',
-  seedNotifications: createSeedNotifications(),
+  seedNotifications: withSeedNotifications(defaultSeedTimeline),
 
   setTimeline: (timeline) => {
     set({
@@ -110,6 +129,63 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ timeline, events: timelineToEvents(timeline) });
   },
 
+  setSeedTimeline: (seedTimeline) => {
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  addSeedEntry: (entry) => {
+    const newEntry: SeedEntry = { ...entry, id: uuidv4() };
+    const seedTimeline = [...get().seedTimeline, newEntry];
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  updateSeedEntry: (id, updates) => {
+    const seedTimeline = get().seedTimeline.map((e) =>
+      e.id === id ? { ...e, ...updates } : e
+    );
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  removeSeedEntry: (id) => {
+    const seedTimeline = get().seedTimeline.filter((e) => e.id !== id);
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  duplicateSeedEntry: (id) => {
+    const entry = get().seedTimeline.find((e) => e.id === id);
+    if (!entry) return;
+    const newEntry: SeedEntry = { ...entry, id: uuidv4() };
+    const seedTimeline = [...get().seedTimeline, newEntry];
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  generateBulkSeed: (config) => {
+    const seedTimeline = generateBulkSeedTimeline(config);
+    set({
+      seedTimeline,
+      seedNotifications: withSeedNotifications(seedTimeline),
+    });
+  },
+
+  rebuildSeedNotifications: () => {
+    set({ seedNotifications: withSeedNotifications(get().seedTimeline) });
+  },
+
   updateSettings: (settings) => {
     set({ settings: { ...get().settings, ...settings } });
   },
@@ -133,13 +209,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   resetSimulation: () => {
     const timeline = get().timeline;
+    const seedTimeline = get().seedTimeline;
     set({
       isRunning: false,
       elapsedTime: 0,
       startTime: null,
       metrics: resetMetrics(),
       notifications: [],
-      seedNotifications: createSeedNotifications(),
+      seedNotifications: withSeedNotifications(seedTimeline),
       events: timelineToEvents(timeline),
     });
   },
@@ -201,14 +278,19 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         ...n,
         status: 'dismissed' as const,
       })),
+      seedNotifications: get().seedNotifications.map((n) => ({
+        ...n,
+        status: 'dismissed' as const,
+      })),
     });
   },
 
   dismissSeedNotification: (id) => {
     set({
-      seedNotifications: get().seedNotifications.map((n) =>
-        n.id === id ? { ...n, status: 'dismissed' as const } : n
-      ),
+      seedTimeline: get().seedTimeline.filter((e) => e.id !== id),
+      seedNotifications: get().seedNotifications
+        .map((n) => (n.id === id ? { ...n, status: 'dismissed' as const } : n))
+        .filter((n) => n.id !== id),
     });
   },
 }));

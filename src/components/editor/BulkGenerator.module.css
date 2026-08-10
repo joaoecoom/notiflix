@@ -9,6 +9,13 @@
   font-weight: 600;
 }
 
+.subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: -4px;
+}
+
 .field {
   display: flex;
   flex-direction: column;

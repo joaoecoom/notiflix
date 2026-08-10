@@ -97,11 +97,37 @@ export interface SimulationScenario {
   description?: string;
 }
 
+export type SeedTimeUnit = 'minutes' | 'hours' | 'days';
+
+export interface SeedEntry {
+  id: string;
+  offsetValue: number;
+  offsetUnit: SeedTimeUnit;
+  clockHour: number;
+  clockMinute: number;
+  currency: CurrencyCode;
+  amount: number;
+  app: string;
+}
+
+export interface SeedBulkGeneratorConfig {
+  quantity: number;
+  app: string;
+  currencies: CurrencyCode[];
+  minAmount: number;
+  maxAmount: number;
+  minOffsetValue: number;
+  maxOffsetValue: number;
+  offsetUnit: 'hours' | 'days';
+  distribution: CurrencyDistribution;
+}
+
 export interface SimulationState {
   scenario: SimulationScenario;
   settings: SimulationSettings;
   events: SimulationEvent[];
   timeline: TimelineEntry[];
+  seedTimeline: SeedEntry[];
   metrics: SimulationMetrics;
   notifications: NotificationRecord[];
   isRunning: boolean;

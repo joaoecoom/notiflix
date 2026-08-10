@@ -7,6 +7,8 @@ import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { ControlPanel } from './components/editor/ControlPanel';
 import { TimelineEditor } from './components/editor/TimelineEditor';
 import { BulkGeneratorPanel } from './components/editor/BulkGenerator';
+import { SeedTimelineEditor } from './components/editor/SeedTimelineEditor';
+import { SeedBulkGeneratorPanel } from './components/editor/SeedBulkGenerator';
 import { StripeTemplate } from './templates/stripe/StripeTemplate';
 import { useSimulationStore } from './store/simulationStore';
 import styles from './App.module.css';
@@ -38,6 +40,14 @@ function App() {
         <div className={styles.divider} />
 
         <BulkGeneratorPanel />
+
+        <div className={styles.divider} />
+
+        <SeedTimelineEditor />
+
+        <div className={styles.divider} />
+
+        <SeedBulkGeneratorPanel />
       </aside>
 
       <main className={styles.preview}>
@@ -75,6 +85,10 @@ function App() {
             <ControlPanel onSimulationStart={handleSimulationStart} />
             <div className={styles.divider} />
             <TimelineEditor />
+            <div className={styles.divider} />
+            <SeedTimelineEditor />
+            <div className={styles.divider} />
+            <SeedBulkGeneratorPanel />
           </div>
         </div>
       )}

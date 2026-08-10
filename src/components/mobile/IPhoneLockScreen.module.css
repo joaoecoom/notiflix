@@ -71,56 +71,57 @@
   }
 }
 
-/* ── Clock ── */
+/* ── Clock (iOS lock screen — ultralight outline + glass fill) ── */
 .clock {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0;
-  margin-top: 10px;
+  padding: 0 12px;
+  margin-top: 14px;
   flex-shrink: 0;
 }
 
 .date {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: #ffffff;
-  letter-spacing: -0.024em;
-  line-height: 1.2;
-  margin-bottom: 2px;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+  margin-bottom: -2px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
 }
 
 .timeWrap {
   position: relative;
   display: inline-block;
-  line-height: 0.88;
+  line-height: 0.8;
+  margin-top: 2px;
+}
+
+.timeFill,
+.timeStroke {
+  display: block;
+  font-size: 102px;
+  font-weight: 100;
+  letter-spacing: -0.048em;
+  font-variant-numeric: tabular-nums;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Rounded', system-ui, sans-serif;
+  font-feature-settings: 'tnum' 1;
 }
 
 .timeFill {
-  display: block;
-  font-size: 98px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  color: rgba(90, 90, 96, 0.55);
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: rgba(255, 255, 255, 0.26);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.26);
 }
 
 .timeStroke {
   position: absolute;
   inset: 0;
-  display: block;
-  font-size: 98px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.88);
+  -webkit-text-stroke: 1.15px rgba(255, 255, 255, 0.93);
   pointer-events: none;
 }
 
@@ -316,8 +317,17 @@
 }
 
 @media (max-width: 430px) {
+  .date {
+    font-size: 22px;
+  }
+
   .timeFill,
   .timeStroke {
-    font-size: 92px;
+    font-size: 98px;
+    letter-spacing: -0.05em;
+  }
+
+  .timeStroke {
+    -webkit-text-stroke-width: 1.1px;
   }
 }

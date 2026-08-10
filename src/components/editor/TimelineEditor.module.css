@@ -103,6 +103,36 @@
   color: var(--text-primary);
 }
 
+.hint,
+.empty {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.empty {
+  padding: 12px;
+  text-align: center;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.seedEntry {
+  grid-template-columns: 90px 70px 60px 70px 1fr auto;
+}
+
+.clockFields {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.clockFields .timeInput {
+  width: 36px;
+}
+
 @media (max-width: 900px) {
   .entry {
     grid-template-columns: 1fr 1fr;
