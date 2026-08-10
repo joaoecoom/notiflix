@@ -1,0 +1,157 @@
+import type { CurrencyCode } from '../currency';
+
+export type EventType = 'sale' | 'refund' | 'payout' | 'customer';
+
+export type DistributionMode = 'random' | 'fixed' | 'weighted';
+
+export type IntensityLevel = 'LOW' | 'NORMAL' | 'HIGH' | 'VIRAL';
+
+export interface SimulationEvent {
+  id: string;
+  type: EventType;
+  amount: number;
+  currency: CurrencyCode;
+  timestamp: number;
+  offsetSeconds: number;
+  app: string;
+  appIcon?: string;
+  title?: string;
+  message?: string;
+  processed: boolean;
+  customerId?: string;
+}
+
+export interface TimelineEntry {
+  id: string;
+  offsetSeconds: number;
+  type: EventType;
+  currency: CurrencyCode;
+  amount: number;
+  app: string;
+  message?: string;
+}
+
+export interface CurrencyMetrics {
+  currency: CurrencyCode;
+  revenue: number;
+  payments: number;
+  customers: number;
+  balance: number;
+  refunds: number;
+}
+
+export interface SimulationMetrics {
+  byCurrency: Record<CurrencyCode, CurrencyMetrics>;
+  totalEvents: number;
+  chartData: ChartDataPoint[];
+  transactions: TransactionRecord[];
+}
+
+export interface ChartDataPoint {
+  timestamp: number;
+  values: Partial<Record<CurrencyCode, number>>;
+  cumulative: Partial<Record<CurrencyCode, number>>;
+}
+
+export interface TransactionRecord {
+  id: string;
+  amount: number;
+  currency: CurrencyCode;
+  type: EventType;
+  timestamp: number;
+  status: 'paid' | 'pending' | 'refunded';
+  description?: string;
+}
+
+export interface CurrencyDistribution {
+  EUR: number;
+  USD: number;
+  BRL: number;
+}
+
+export interface BulkGeneratorConfig {
+  quantity: number;
+  app: string;
+  currencies: CurrencyCode[];
+  minAmount: number;
+  maxAmount: number;
+  minInterval: number;
+  maxInterval: number;
+  distribution: CurrencyDistribution;
+  autoDistribution: boolean;
+  intensity: IntensityLevel;
+}
+
+export interface SimulationSettings {
+  enabledCurrencies: CurrencyCode[];
+  distribution: CurrencyDistribution;
+  distributionMode: DistributionMode;
+  autoDistribution: boolean;
+  intensity: IntensityLevel;
+  playbackSpeed: number;
+}
+
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface SimulationState {
+  scenario: SimulationScenario;
+  settings: SimulationSettings;
+  events: SimulationEvent[];
+  timeline: TimelineEntry[];
+  metrics: SimulationMetrics;
+  notifications: NotificationRecord[];
+  isRunning: boolean;
+  elapsedTime: number;
+  startTime: number | null;
+  activeTab: 'home' | 'payments' | 'balances' | 'customers' | 'search';
+  viewMode: 'stripe' | 'iphone';
+  seedNotifications: NotificationRecord[];
+  selectedCurrencyFilter: CurrencyCode | 'all';
+}
+
+export interface NotificationRecord {
+  id: string;
+  app: string;
+  appIcon?: string;
+  title: string;
+  message: string;
+  amount: number;
+  currency: CurrencyCode;
+  timestamp: number;
+  displayTime?: string;
+  status: 'active' | 'dismissed';
+  eventId: string;
+  isSeed?: boolean;
+}
+
+export const DEFAULT_DISTRIBUTION: CurrencyDistribution = {
+  EUR: 40,
+  USD: 30,
+  BRL: 30,
+};
+
+export const DEFAULT_SETTINGS: SimulationSettings = {
+  enabledCurrencies: ['EUR', 'USD', 'BRL'],
+  distribution: DEFAULT_DISTRIBUTION,
+  distributionMode: 'weighted',
+  autoDistribution: true,
+  intensity: 'NORMAL',
+  playbackSpeed: 1,
+};
+
+export function createEmptyMetrics(): SimulationMetrics {
+  return {
+    byCurrency: {
+      EUR: { currency: 'EUR', revenue: 0, payments: 0, customers: 0, balance: 0, refunds: 0 },
+      USD: { currency: 'USD', revenue: 0, payments: 0, customers: 0, balance: 0, refunds: 0 },
+      BRL: { currency: 'BRL', revenue: 0, payments: 0, customers: 0, balance: 0, refunds: 0 },
+    },
+    totalEvents: 0,
+    chartData: [],
+    transactions: [],
+  };
+}

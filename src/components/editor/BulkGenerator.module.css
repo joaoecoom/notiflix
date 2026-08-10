@@ -1,0 +1,117 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field input[type='text'],
+.field input[type='number'] {
+  padding: 8px 10px;
+  background: var(--bg-tertiary);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.checkboxes {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkbox input {
+  accent-color: var(--accent-purple);
+}
+
+.distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.distRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.distRow input {
+  width: 60px;
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border: 0.5px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.intensity {
+  display: flex;
+  gap: 4px;
+}
+
+.intensityBtn {
+  flex: 1;
+  padding: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 0.5px solid var(--border-subtle);
+}
+
+.intensityBtn.active {
+  background: var(--accent-purple-muted);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+
+.generateBtn {
+  padding: 12px;
+  background: var(--accent-purple);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-sm);
+}
+
+.generateBtn:hover {
+  background: var(--accent-purple-dark);
+}

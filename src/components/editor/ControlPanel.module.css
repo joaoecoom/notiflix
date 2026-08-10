@@ -1,0 +1,150 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.subheading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.startBtn {
+  flex: 1;
+  padding: 14px 20px;
+  background: var(--accent-purple);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-md);
+}
+
+.startBtn:hover {
+  background: var(--accent-purple-dark);
+}
+
+.stopBtn {
+  flex: 1;
+  padding: 14px 20px;
+  background: var(--danger);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+}
+
+.resetBtn {
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-subtle);
+}
+
+.elapsed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.elapsedDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 1.5s infinite;
+}
+
+.viewModes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.screenBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 0.5px solid var(--border-subtle);
+  text-align: left;
+  width: 100%;
+}
+
+.screenBtn.active {
+  background: var(--accent-purple-muted);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+
+.screenLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.screenDesc {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.screenBtn.active .screenDesc {
+  color: var(--accent-purple);
+}
+.currencyFilters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 0.5px solid var(--border-subtle);
+}
+
+.filterBtn.active {
+  background: var(--accent-purple-muted);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
+}

@@ -1,0 +1,149 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.currencyBlock {
+  padding: var(--space-lg);
+}
+
+.currencyLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-sm);
+}
+
+.flag {
+  font-size: 14px;
+}
+
+.currencyCode {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.balanceAmount {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 48px;
+  margin-bottom: var(--space-lg);
+}
+
+.transferBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: var(--space-2xl);
+}
+
+.paymentBalance {
+  margin-bottom: var(--space-2xl);
+}
+
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.balanceCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.balanceValue {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.recentActivity {
+  padding: 0 var(--space-lg);
+}
+
+.txRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: 0.5px solid var(--border-subtle);
+}
+
+.txInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.txAmount {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.txDate {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.txDesc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.txBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--success-bg);
+  color: var(--success-text);
+  flex-shrink: 0;
+}
+
+.spacer {
+  height: var(--space-3xl);
+}

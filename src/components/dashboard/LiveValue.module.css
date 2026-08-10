@@ -1,0 +1,19 @@
+@keyframes valuePop {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  30% {
+    transform: scale(1.06);
+    color: var(--accent-purple-light);
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+.live {
+  display: inline-block;
+  animation: valuePop 0.45s ease-out;
+}

@@ -1,0 +1,32 @@
+.nav {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  height: var(--bottom-nav-height);
+  padding: 6px 0 0;
+  background: var(--bg-primary);
+  border-top: 0.5px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+  min-width: 56px;
+}
+
+.item.active {
+  color: var(--accent-purple);
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 12px;
+}

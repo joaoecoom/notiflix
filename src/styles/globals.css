@@ -1,0 +1,179 @@
+:root {
+  /* Stripe-inspired dark palette */
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #121214;
+  --bg-tertiary: #1a1a1e;
+  --bg-card: #161618;
+  --bg-elevated: #1e1e22;
+
+  /* Purple accent */
+  --accent-purple: #7c5cff;
+  --accent-purple-light: #9f8bff;
+  --accent-purple-dark: #6344e0;
+  --accent-purple-muted: rgba(124, 92, 255, 0.15);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #8e8e93;
+  --text-tertiary: #636366;
+  --text-muted: #48484a;
+
+  /* Status colors */
+  --success: #34c759;
+  --success-bg: rgba(52, 199, 89, 0.15);
+  --success-text: #4ade80;
+  --danger: #ff3b30;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.12);
+
+  /* iOS notification */
+  --notif-bg: rgba(40, 40, 42, 0.72);
+  --notif-border: rgba(255, 255, 255, 0.15);
+  --notif-blur: 40px;
+
+  /* Stripe brand */
+  --stripe-purple: #635bff;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+
+  /* Mobile dimensions */
+  --mobile-width: 393px;
+  --mobile-height: 852px;
+  --status-bar-height: 54px;
+  --home-indicator-height: 34px;
+  --bottom-nav-height: 83px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Typography */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', monospace;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-notif: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-system);
+  background: #000;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 2px;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

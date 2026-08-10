@@ -1,0 +1,72 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-primary);
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.reports {
+  margin-bottom: var(--space-sm);
+}
+
+.reportsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.reportsTitle {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.editBtn {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent-purple);
+}
+
+.newCustomers {
+  padding: var(--space-xl) var(--space-lg);
+  border-bottom: 0.5px solid var(--border-subtle);
+}
+
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.customerMetrics {
+  display: flex;
+  justify-content: space-between;
+}
+
+.customerValue {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.customerValue.purple {
+  color: var(--accent-purple-light);
+}
+
+.spacer {
+  height: var(--space-3xl);
+}

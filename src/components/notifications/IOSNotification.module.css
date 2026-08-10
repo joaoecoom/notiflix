@@ -1,0 +1,167 @@
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--notif-bg);
+  backdrop-filter: blur(var(--notif-blur));
+  -webkit-backdrop-filter: blur(var(--notif-blur));
+  border: 0.5px solid var(--notif-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-notif);
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+
+.notification.enter {
+  animation: slideInUp 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+.notification.exit {
+  animation: slideOutDown 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.stripeDashboardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #3b9eff 0%, #0074d4 50%, #0055b3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 80, 200, 0.35);
+}
+
+.stripeIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--stripe-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1c1c1e;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.appName {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 20px;
+  color: var(--text-primary);
+}
+
+.timestamp {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 20px;
+}
+
+.message {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.01em;
+}
+
+.messageOnly {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.92);
+  flex: 1;
+  min-width: 0;
+}
+
+.banner {
+  border-radius: var(--radius-lg);
+}
+
+.lockscreen {
+  border-radius: 22px;
+  background: rgba(38, 38, 40, 0.72);
+  backdrop-filter: blur(50px) saturate(180%);
+  -webkit-backdrop-filter: blur(50px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: 11px 13px;
+}
+
+.stack {
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 430px) {
+  .lockscreen {
+    padding: 11px 13px;
+  }
+
+  .stripeDashboardIcon {
+    width: 38px;
+    height: 38px;
+  }
+}

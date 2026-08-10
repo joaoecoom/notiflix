@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  gap: 4px;
+  padding: 0 var(--space-lg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: var(--space-xl);
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  transition: all 0.2s;
+}
+
+.item.active {
+  background: var(--accent-purple);
+  color: white;
+}

@@ -1,0 +1,36 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px var(--space-lg) var(--space-md);
+  flex-shrink: 0;
+}
+
+.shopBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 22px;
+}
+
+.addBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-purple);
+  border-radius: var(--radius-full);
+  color: white;
+}
