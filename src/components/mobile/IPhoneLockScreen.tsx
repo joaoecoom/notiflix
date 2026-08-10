@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { getLockScreenNotifications } from '../../engines/notification';
+import type { NotificationRecord } from '../../engines/simulation/types';
 import { IOSNotification } from '../notifications/IOSNotification';
 import styles from './IPhoneLockScreen.module.css';
 
@@ -22,17 +23,37 @@ function formatLockTime(date: Date): string {
 export function IPhoneLockScreen() {
   const liveNotifications = useSimulationStore((s) => s.notifications);
   const seedNotifications = useSimulationStore((s) => s.seedNotifications);
+  const isRunning = useSimulationStore((s) => s.isRunning);
+  const elapsedTime = useSimulationStore((s) => s.elapsedTime);
   const dismissNotification = useSimulationStore((s) => s.dismissNotification);
   const dismissSeedNotification = useSimulationStore((s) => s.dismissSeedNotification);
   const dismissAllNotifications = useSimulationStore((s) => s.dismissAllNotifications);
 
   const [now, setNow] = useState(new Date());
   const [expanded, setExpanded] = useState(true);
+  const [banner, setBanner] = useState<NotificationRecord | null>(null);
+  const prevLiveCount = useRef(liveNotifications.length);
+  const notifListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (liveNotifications.length > prevLiveCount.current) {
+      const newest = liveNotifications[0];
+      if (newest && !newest.isSeed) {
+        setBanner(newest);
+        setExpanded(true);
+        notifListRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        const timer = setTimeout(() => setBanner(null), 4500);
+        prevLiveCount.current = liveNotifications.length;
+        return () => clearTimeout(timer);
+      }
+    }
+    prevLiveCount.current = liveNotifications.length;
+  }, [liveNotifications]);
 
   const visible = getLockScreenNotifications(liveNotifications, seedNotifications, 8);
 
@@ -41,12 +62,30 @@ export function IPhoneLockScreen() {
     else dismissNotification(id);
   };
 
+  const formatElapsed = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
   return (
     <div className={styles.lockscreen}>
       <div className={styles.wallpaper} />
       <div className={styles.depthSubject} aria-hidden />
 
-      {/* Status bar */}
+      {banner && (
+        <div className={styles.bannerWrap}>
+          <IOSNotification notification={banner} variant="lockscreen" animating />
+        </div>
+      )}
+
+      {isRunning && (
+        <div className={styles.liveBadge}>
+          <span className={styles.liveDot} />
+          LIVE {formatElapsed(elapsedTime)}
+        </div>
+      )}
+
       <div className={styles.statusBar}>
         <span className={styles.carrier}>MEO</span>
         <div className={styles.indicators}>
@@ -70,7 +109,6 @@ export function IPhoneLockScreen() {
         </div>
       </div>
 
-      {/* Clock */}
       <div className={styles.clock}>
         <span className={styles.date}>{formatLockDate(now)}</span>
         <span className={styles.time} aria-label={formatLockTime(now)}>
@@ -80,7 +118,6 @@ export function IPhoneLockScreen() {
 
       <div className={styles.spacer} />
 
-      {/* Notification Center — bottom */}
       {visible.length > 0 && (
         <div className={styles.notifCenter}>
           <div className={styles.centerHeader}>
@@ -124,7 +161,7 @@ export function IPhoneLockScreen() {
             </button>
           </div>
 
-          <div className={styles.notifList}>
+          <div className={styles.notifList} ref={notifListRef}>
             {!expanded && visible.length > 1 ? (
               <div className={styles.collapsedStack}>
                 <div className={styles.stackLayer3} />
@@ -139,7 +176,10 @@ export function IPhoneLockScreen() {
               </div>
             ) : (
               visible.map((notification, index) => (
-                <div key={notification.id} className={styles.notifItem}>
+                <div
+                  key={notification.id}
+                  className={`${styles.notifItem} ${!notification.isSeed && index === 0 ? styles.notifNew : ''}`}
+                >
                   <IOSNotification
                     notification={notification}
                     variant="lockscreen"
@@ -153,7 +193,6 @@ export function IPhoneLockScreen() {
         </div>
       )}
 
-      {/* Bottom shortcuts */}
       <div className={styles.bottomControls}>
         <button className={styles.shortcutBtn} aria-label="Lanterna">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -174,32 +213,4 @@ export function IPhoneLockScreen() {
       </div>
     </div>
   );
-}
-
-export function useSimulationLoop() {
-  const tick = useSimulationStore((s) => s.tick);
-  const isRunning = useSimulationStore((s) => s.isRunning);
-  const rafRef = useRef<number>(0);
-  const lastTimeRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!isRunning) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      lastTimeRef.current = 0;
-      return;
-    }
-
-    const loop = (timestamp: number) => {
-      if (lastTimeRef.current > 0) {
-        tick(timestamp - lastTimeRef.current);
-      }
-      lastTimeRef.current = timestamp;
-      rafRef.current = requestAnimationFrame(loop);
-    };
-
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [isRunning, tick]);
 }

@@ -31,6 +31,7 @@ interface SimulationActions {
   startSimulation: () => void;
   stopSimulation: () => void;
   resetSimulation: () => void;
+  processEventsForElapsed: (elapsedSeconds: number) => void;
   tick: (deltaMs: number) => void;
   setActiveTab: (tab: SimulationState['activeTab']) => void;
   setViewMode: (mode: SimulationState['viewMode']) => void;
@@ -120,8 +121,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       startTime: Date.now(),
       metrics: resetMetrics(),
       notifications: [],
+      viewMode: 'iphone',
       events: get().events.map((e) => ({ ...e, processed: false })),
     });
+    get().processEventsForElapsed(0);
   },
 
   stopSimulation: () => {
@@ -141,6 +144,28 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
+  processEventsForElapsed: (elapsedSeconds) => {
+    const state = get();
+    let { metrics, notifications, events } = state;
+    const now = Date.now();
+    let changed = false;
+
+    events = events.map((event) => {
+      if (!event.processed && event.offsetSeconds <= elapsedSeconds) {
+        const result = processEvent(event, metrics, now);
+        metrics = result.metrics;
+        notifications = [result.notification, ...notifications];
+        changed = true;
+        return { ...event, processed: true, timestamp: now };
+      }
+      return event;
+    });
+
+    if (changed) {
+      set({ metrics, notifications, events });
+    }
+  },
+
   tick: (deltaMs) => {
     const state = get();
     if (!state.isRunning) return;
@@ -149,23 +174,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const newElapsed = state.elapsedTime + (deltaMs / 1000) * speed;
     const elapsedSeconds = Math.floor(newElapsed);
 
-    let { metrics, notifications, events } = state;
-    const now = Date.now();
+    get().processEventsForElapsed(elapsedSeconds);
+    set({ elapsedTime: newElapsed });
 
-    events = events.map((event) => {
-      if (!event.processed && event.offsetSeconds <= elapsedSeconds) {
-        const result = processEvent(event, metrics, now);
-        metrics = result.metrics;
-        notifications = [result.notification, ...notifications];
-        return { ...event, processed: true, timestamp: now };
-      }
-      return event;
-    });
-
-    set({ elapsedTime: newElapsed, metrics, notifications, events });
-
-    const allProcessed = events.every((e) => e.processed);
-    if (allProcessed && events.length > 0) {
+    const { events } = get();
+    if (events.length > 0 && events.every((e) => e.processed)) {
       set({ isRunning: false, startTime: null });
     }
   },

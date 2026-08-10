@@ -3,7 +3,8 @@ import { MobileCanvas } from './components/mobile/MobileCanvas';
 import { StatusBar } from './components/mobile/StatusBar';
 import { BottomNav } from './components/mobile/BottomNav';
 import { HomeIndicator } from './components/mobile/HomeIndicator';
-import { IPhoneLockScreen, useSimulationLoop } from './components/mobile/IPhoneLockScreen';
+import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
+import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { ControlPanel } from './components/editor/ControlPanel';
 import { TimelineEditor } from './components/editor/TimelineEditor';
 import { BulkGeneratorPanel } from './components/editor/BulkGenerator';
@@ -17,6 +18,10 @@ function App() {
 
   const viewMode = useSimulationStore((s) => s.viewMode);
 
+  const handleSimulationStart = () => {
+    setMobilePanelOpen(false);
+  };
+
   return (
     <div className={styles.app}>
       <aside className={styles.sidebar}>
@@ -25,7 +30,7 @@ function App() {
           <span className={styles.badge}>Prototype</span>
         </header>
 
-        <ControlPanel />
+        <ControlPanel onSimulationStart={handleSimulationStart} />
 
         <div className={styles.divider} />
 
@@ -69,7 +74,7 @@ function App() {
                 ✕
               </button>
             </header>
-            <ControlPanel />
+            <ControlPanel onSimulationStart={handleSimulationStart} />
             <div className={styles.divider} />
             <TimelineEditor />
           </div>

@@ -8,7 +8,11 @@ const SCREENS = [
   { id: 'iphone' as const, label: 'iPhone Lock Screen', desc: 'Ecrã bloqueado + notificações' },
 ];
 
-export function ControlPanel() {
+interface ControlPanelProps {
+  onSimulationStart?: () => void;
+}
+
+export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
   const isRunning = useSimulationStore((s) => s.isRunning);
   const elapsedTime = useSimulationStore((s) => s.elapsedTime);
   const viewMode = useSimulationStore((s) => s.viewMode);
@@ -35,7 +39,13 @@ export function ControlPanel() {
         </p>
         <div className={styles.controls}>
           {!isRunning ? (
-            <button className={styles.startBtn} onClick={startSimulation}>
+            <button
+              className={styles.startBtn}
+              onClick={() => {
+                startSimulation();
+                onSimulationStart?.();
+              }}
+            >
               INICIAR SIMULAÇÃO
             </button>
           ) : (
