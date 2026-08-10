@@ -26,7 +26,7 @@ export function IPhoneLockScreen() {
   const dismissAllNotifications = useSimulationStore((s) => s.dismissAllNotifications);
 
   const [now, setNow] = useState(new Date());
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const prevLiveCount = useRef(liveNotifications.length);
   const notifListRef = useRef<HTMLDivElement>(null);
 
@@ -39,7 +39,7 @@ export function IPhoneLockScreen() {
     if (liveNotifications.length > prevLiveCount.current) {
       const newest = liveNotifications[0];
       if (newest && !newest.isSeed) {
-        setExpanded(true);
+        setExpanded(false);
         notifListRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
@@ -47,6 +47,7 @@ export function IPhoneLockScreen() {
   }, [liveNotifications]);
 
   const visible = getLockScreenNotifications(liveNotifications, seedNotifications, 8);
+  const timeStr = formatLockTime(now);
 
   const handleDismiss = (id: string, isSeed?: boolean) => {
     if (isSeed) dismissSeedNotification(id);
@@ -62,9 +63,10 @@ export function IPhoneLockScreen() {
 
       <div className={styles.clock}>
         <span className={styles.date}>{formatLockDate(now)}</span>
-        <span className={styles.time} aria-label={formatLockTime(now)}>
-          {formatLockTime(now)}
-        </span>
+        <div className={styles.timeWrap} aria-label={timeStr}>
+          <span className={styles.timeFill}>{timeStr}</span>
+          <span className={styles.timeStroke} aria-hidden>{timeStr}</span>
+        </div>
       </div>
 
       <div className={styles.spacer} />
@@ -78,49 +80,50 @@ export function IPhoneLockScreen() {
               aria-label="Limpar"
               onClick={dismissAllNotifications}
             >
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M1 1l8 8M9 1L1 9" strokeLinecap="round" />
               </svg>
             </button>
           </div>
 
-          <div className={styles.groupHeader}>
-            <span className={styles.groupName}>Stripe</span>
-            {visible.length > 1 && (
-              <button
-                className={styles.collapseBtn}
-                onClick={() => setExpanded(!expanded)}
-              >
-                {expanded ? 'Mostrar menos' : 'Mostrar tudo'}
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 10 10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+          {expanded && (
+            <div className={styles.groupHeader}>
+              <span className={styles.groupName}>Stripe</span>
+              {visible.length > 1 && (
+                <button
+                  className={styles.collapseBtn}
+                  onClick={() => setExpanded(false)}
                 >
-                  <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+                  Mostrar menos
+                  <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              )}
+              <button className={styles.clearBtn} aria-label="Limpar Stripe">
+                <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M1 1l8 8M9 1L1 9" strokeLinecap="round" />
                 </svg>
               </button>
-            )}
-            <button className={styles.clearBtn} aria-label="Limpar Stripe">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M1 1l8 8M9 1L1 9" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
+            </div>
+          )}
 
           <div className={styles.notifList} ref={notifListRef}>
-            {!expanded && visible.length > 1 ? (
-              <div className={styles.collapsedStack}>
+            {!expanded && visible.length > 0 ? (
+              <div
+                className={styles.collapsedStack}
+                onClick={() => visible.length > 1 && setExpanded(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && visible.length > 1 && setExpanded(true)}
+              >
                 <div className={styles.stackLayer3} />
                 <div className={styles.stackLayer2} />
+                <div className={styles.stackLayer1} />
                 <IOSNotification
                   notification={visible[0]}
                   variant="lockscreen"
-                  badge={visible.length}
+                  badge={visible.length > 1 ? visible.length : undefined}
                   animating={!visible[0].isSeed}
                   onDismiss={() => handleDismiss(visible[0].id, visible[0].isSeed)}
                 />
@@ -146,15 +149,15 @@ export function IPhoneLockScreen() {
 
       <div className={styles.bottomControls}>
         <button className={styles.shortcutBtn} aria-label="Lanterna">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
             <path d="M9 18l3-3V6a3 3 0 016 0v9l3 3" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M12 21v-3" strokeLinecap="round" />
           </svg>
         </button>
         <button className={styles.shortcutBtn} aria-label="Câmara">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <rect x="3" y="6" width="18" height="13" rx="2" />
-            <circle cx="12" cy="12.5" r="3.5" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <rect x="3" y="6" width="18" height="13" rx="2.2" />
+            <circle cx="12" cy="12.5" r="3.2" />
           </svg>
         </button>
       </div>

@@ -11,7 +11,6 @@
   position: absolute;
   inset: 0;
   background: url('/wallpaper.png') center top / cover no-repeat;
-  transform: scale(1.03);
 }
 
 .depthSubject {
@@ -21,15 +20,15 @@
   z-index: 1;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.05) 0%,
-    transparent 25%,
-    transparent 55%,
-    rgba(0, 0, 0, 0.15) 80%,
-    rgba(0, 0, 0, 0.35) 100%
+    rgba(0, 0, 0, 0.08) 0%,
+    transparent 30%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.2) 85%,
+    rgba(0, 0, 0, 0.4) 100%
   );
 }
 
-/* ── Clock (iOS lock screen) ── */
+/* ── Clock ── */
 .clock {
   position: relative;
   z-index: 2;
@@ -37,39 +36,54 @@
   flex-direction: column;
   align-items: center;
   padding: 0;
-  margin-top: -2px;
+  margin-top: 0;
   flex-shrink: 0;
 }
 
 .date {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   color: #ffffff;
-  letter-spacing: -0.022em;
-  line-height: 1.15;
-  margin-bottom: 0;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+  letter-spacing: -0.024em;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
-.time {
-  font-size: 102px;
+.timeWrap {
+  position: relative;
+  display: inline-block;
+  line-height: 0.88;
+}
+
+.timeFill {
+  display: block;
+  font-size: 98px;
   font-weight: 200;
-  letter-spacing: -0.03em;
-  line-height: 0.92;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  color: rgba(255, 255, 255, 0.1);
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.92);
-  paint-order: stroke fill;
-  text-shadow: none;
-  position: relative;
-  z-index: 2;
-  margin-top: -2px;
+  color: rgba(90, 90, 96, 0.55);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.timeStroke {
+  position: absolute;
+  inset: 0;
+  display: block;
+  font-size: 98px;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.88);
+  pointer-events: none;
 }
 
 .spacer {
   flex: 1;
-  min-height: 0;
+  min-height: 8px;
 }
 
 /* ── Notification Center ── */
@@ -77,35 +91,35 @@
   position: relative;
   z-index: 3;
   flex-shrink: 0;
-  padding: 0 12px 4px;
+  padding: 0 16px 6px;
 }
 
 .centerHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
-  padding: 0 4px;
+  margin-bottom: 12px;
+  padding: 0 2px;
 }
 
 .centerTitle {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: -0.01em;
+  color: #ffffff;
+  letter-spacing: -0.022em;
 }
 
 .clearBtn {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(80, 80, 84, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.75);
   flex-shrink: 0;
 }
 
@@ -113,37 +127,39 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  padding: 0 4px;
+  margin-bottom: 10px;
+  padding: 0 2px;
 }
 
 .groupName {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.92);
   flex: 1;
+  letter-spacing: -0.01em;
 }
 
 .collapseBtn {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px;
+  padding: 5px 11px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(80, 80, 84, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
 
 .notifList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 280px;
+  gap: 10px;
+  max-height: 290px;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -156,36 +172,50 @@
   flex-shrink: 0;
 }
 
-/* Collapsed stack */
+/* Collapsed stack — iOS layered cards */
 .collapsedStack {
   position: relative;
+  padding-bottom: 10px;
+  cursor: pointer;
 }
 
+.stackLayer1,
 .stackLayer2,
 .stackLayer3 {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  height: 100%;
+  left: 0;
+  right: 0;
+  height: calc(100% - 10px);
   border-radius: 22px;
-  background: rgba(40, 40, 42, 0.55);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background: rgba(44, 44, 46, 0.62);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border: 0.5px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.stackLayer1 {
+  bottom: 4px;
+  left: 6px;
+  right: 6px;
+  z-index: 0;
+  opacity: 0.85;
 }
 
 .stackLayer2 {
-  bottom: -4px;
-  z-index: 0;
-  opacity: 0.7;
+  bottom: 8px;
+  left: 12px;
+  right: 12px;
+  z-index: -1;
+  opacity: 0.55;
 }
 
 .stackLayer3 {
-  bottom: -8px;
-  left: 16px;
-  right: 16px;
-  z-index: -1;
-  opacity: 0.4;
+  bottom: 12px;
+  left: 18px;
+  right: 18px;
+  z-index: -2;
+  opacity: 0.3;
 }
 
 .collapsedStack > :last-child {
@@ -199,7 +229,7 @@
   z-index: 3;
   display: flex;
   justify-content: space-between;
-  padding: 8px 42px 4px;
+  padding: 10px 46px 6px;
   flex-shrink: 0;
 }
 
@@ -207,10 +237,10 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(80, 80, 84, 0.45);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -222,28 +252,29 @@
   z-index: 3;
   display: flex;
   justify-content: center;
-  padding: 6px 0 8px;
+  padding: 4px 0 8px;
   flex-shrink: 0;
 }
 
 .homeIndicator {
   width: 134px;
   height: 5px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 3px;
 }
 
 .notifNew {
-  animation: notifHighlight 0.6s ease-out;
+  animation: notifHighlight 0.5s ease-out;
 }
 
 @keyframes notifHighlight {
-  0% {
-    transform: scale(1.02);
-    filter: brightness(1.3);
-  }
-  100% {
-    transform: scale(1);
-    filter: brightness(1);
+  0% { filter: brightness(1.25); }
+  100% { filter: brightness(1); }
+}
+
+@media (max-width: 430px) {
+  .timeFill,
+  .timeStroke {
+    font-size: 92px;
   }
 }

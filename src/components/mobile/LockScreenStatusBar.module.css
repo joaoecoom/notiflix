@@ -2,10 +2,10 @@
   position: relative;
   z-index: 3;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 16px 22px 0;
-  height: 50px;
+  padding: 14px 24px 2px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -13,27 +13,29 @@
   font-size: 15px;
   font-weight: 600;
   color: #fff;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.024em;
   line-height: 1;
+  padding-bottom: 1px;
 }
 
 .right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  padding-bottom: 1px;
 }
 
 .cellular {
-  width: 18px;
-  height: 12px;
+  width: 17px;
+  height: 11px;
 }
 
 .wifi {
-  width: 16px;
-  height: 12px;
+  width: 15px;
+  height: 11px;
 }
 
 .battery {
   width: 27px;
-  height: 13px;
+  height: 12px;
 }

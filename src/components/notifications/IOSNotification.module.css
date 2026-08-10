@@ -51,20 +51,21 @@
 
 .badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
+  top: -5px;
+  right: -5px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #635bff;
-  font-size: 12px;
+  background: #ffffff;
+  color: #1c1c1e;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
 }
 
 .content {
@@ -122,12 +123,12 @@
 
 .lockscreen {
   border-radius: 22px;
-  background: rgba(38, 38, 40, 0.72);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  padding: 11px 13px;
+  background: rgba(44, 44, 46, 0.68);
+  backdrop-filter: blur(50px) saturate(190%);
+  -webkit-backdrop-filter: blur(50px) saturate(190%);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.22);
+  padding: 12px 14px;
 }
 
 .stack {

@@ -1,25 +1,35 @@
-import styles from './StripeAppIcon.module.css';
+/** Official Stripe wordmark path — scale inside 40×40 app icon */
+const STRIPE_S_PATH =
+  'M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z';
 
 interface StripeAppIconProps {
   size?: number;
 }
 
-/** Stripe app icon as seen in iOS notifications — purple gradient + white S mark */
 export function StripeAppIcon({ size = 40 }: StripeAppIconProps) {
+  const radius = Math.round(size * 0.27);
+
   return (
-    <div className={styles.icon} style={{ width: size, height: size }}>
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={styles.mark}
-        aria-hidden
-      >
-        <path
-          d="M14.2 9.8c0-1.15-.95-1.75-2.65-1.75-2.35 0-4.85.95-6.55 2.25L3.8 6.2C6 4.25 9.55 2.85 12.75 2.85c3.55 0 5.85 1.65 5.85 4.35 0 3.25-4.55 4.15-4.55 6.35 0 .85.75 1.3 2.05 1.3 1.75 0 3.85-.75 5.25-1.65l1.3 3.05c-1.5.95-4.1 1.6-6.65 1.6-3.65 0-6-1.75-6-4.55 0-3.45 4.65-4.45 4.65-6.6z"
-          fill="white"
-        />
-      </svg>
-    </div>
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      className="stripe-app-icon"
+    >
+      <defs>
+        <linearGradient id="stripeIconGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#4B9CF5" />
+          <stop offset="45%" stopColor="#5578F7" />
+          <stop offset="100%" stopColor="#6E5CE7" />
+        </linearGradient>
+      </defs>
+      <rect width={size} height={size} rx={radius} fill="url(#stripeIconGrad)" />
+      <g transform={`translate(${size * 0.19}, ${size * 0.27}) scale(${size / 40})`}>
+        <path d={STRIPE_S_PATH} fill="#FFFFFF" />
+      </g>
+    </svg>
   );
 }
