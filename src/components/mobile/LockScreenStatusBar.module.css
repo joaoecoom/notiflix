@@ -1,0 +1,39 @@
+.bar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px 0;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.carrier {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.022em;
+  line-height: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cellular {
+  width: 18px;
+  height: 12px;
+}
+
+.wifi {
+  width: 16px;
+  height: 12px;
+}
+
+.battery {
+  width: 27px;
+  height: 13px;
+}

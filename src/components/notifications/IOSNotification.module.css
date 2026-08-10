@@ -49,43 +49,22 @@
   position: relative;
 }
 
-.stripeDashboardIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #3b9eff 0%, #0074d4 50%, #0055b3 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 80, 200, 0.35);
-}
-
-.stripeIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: var(--stripe-purple);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -6px;
+  right: -6px;
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1c1c1e;
+  background: rgba(255, 255, 255, 0.95);
+  color: #635bff;
   font-size: 12px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .content {
@@ -158,10 +137,5 @@
 @media (max-width: 430px) {
   .lockscreen {
     padding: 11px 13px;
-  }
-
-  .stripeDashboardIcon {
-    width: 38px;
-    height: 38px;
   }
 }
