@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { NotificationRecord } from '../../engines/simulation/types';
 import { useSimulationStore } from '../../store/simulationStore';
 import { getLockScreenNotifications } from '../../engines/notification';
 import { IOSNotification } from '../notifications/IOSNotification';
-import { LockScreenStatusBar } from './LockScreenStatusBar';
 import styles from './IPhoneLockScreen.module.css';
+
+const BANNER_HOLD_MS = 4500;
+const BANNER_DESCEND_MS = 550;
 
 function formatLockDate(date: Date): string {
   const weekdays = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
@@ -27,8 +30,19 @@ export function IPhoneLockScreen() {
 
   const [now, setNow] = useState(new Date());
   const [expanded, setExpanded] = useState(false);
+  const [topBanner, setTopBanner] = useState<NotificationRecord | null>(null);
+  const [bannerExiting, setBannerExiting] = useState(false);
   const prevLiveCount = useRef(liveNotifications.length);
   const notifListRef = useRef<HTMLDivElement>(null);
+  const bannerHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bannerExitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearBannerTimers = useCallback(() => {
+    if (bannerHoldTimer.current) clearTimeout(bannerHoldTimer.current);
+    if (bannerExitTimer.current) clearTimeout(bannerExitTimer.current);
+    bannerHoldTimer.current = null;
+    bannerExitTimer.current = null;
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -37,19 +51,40 @@ export function IPhoneLockScreen() {
 
   useEffect(() => {
     if (liveNotifications.length > prevLiveCount.current) {
-      const newest = liveNotifications[0];
-      if (newest && !newest.isSeed) {
+      const newest = liveNotifications.find((n) => !n.isSeed && n.status === 'active');
+      if (newest) {
+        clearBannerTimers();
+        setTopBanner(newest);
+        setBannerExiting(false);
         setExpanded(false);
-        notifListRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+
+        bannerHoldTimer.current = setTimeout(() => {
+          setBannerExiting(true);
+        }, BANNER_HOLD_MS);
+
+        bannerExitTimer.current = setTimeout(() => {
+          setTopBanner(null);
+          setBannerExiting(false);
+        }, BANNER_HOLD_MS + BANNER_DESCEND_MS);
       }
     }
     prevLiveCount.current = liveNotifications.length;
-  }, [liveNotifications]);
+    return clearBannerTimers;
+  }, [liveNotifications, clearBannerTimers]);
 
-  const visible = getLockScreenNotifications(liveNotifications, seedNotifications, 8);
+  const allVisible = getLockScreenNotifications(liveNotifications, seedNotifications, 8);
+  const stackVisible =
+    topBanner && !bannerExiting
+      ? allVisible.filter((n) => n.id !== topBanner.id)
+      : allVisible;
   const timeStr = formatLockTime(now);
 
   const handleDismiss = (id: string, isSeed?: boolean) => {
+    if (topBanner?.id === id) {
+      clearBannerTimers();
+      setTopBanner(null);
+      setBannerExiting(false);
+    }
     if (isSeed) dismissSeedNotification(id);
     else dismissNotification(id);
   };
@@ -59,7 +94,18 @@ export function IPhoneLockScreen() {
       <div className={styles.wallpaper} />
       <div className={styles.depthSubject} aria-hidden />
 
-      <LockScreenStatusBar />
+      {topBanner && (
+        <div
+          className={`${styles.topBanner} ${bannerExiting ? styles.topBannerExit : styles.topBannerEnter}`}
+        >
+          <IOSNotification
+            notification={topBanner}
+            variant="lockscreen"
+            animating={!bannerExiting}
+            onDismiss={() => handleDismiss(topBanner.id, topBanner.isSeed)}
+          />
+        </div>
+      )}
 
       <div className={styles.clock}>
         <span className={styles.date}>{formatLockDate(now)}</span>
@@ -71,7 +117,7 @@ export function IPhoneLockScreen() {
 
       <div className={styles.spacer} />
 
-      {visible.length > 0 && (
+      {stackVisible.length > 0 && (
         <div className={styles.notifCenter}>
           <div className={styles.centerHeader}>
             <span className={styles.centerTitle}>Central de notificações</span>
@@ -89,7 +135,7 @@ export function IPhoneLockScreen() {
           {expanded && (
             <div className={styles.groupHeader}>
               <span className={styles.groupName}>Stripe</span>
-              {visible.length > 1 && (
+              {stackVisible.length > 1 && (
                 <button
                   className={styles.collapseBtn}
                   onClick={() => setExpanded(false)}
@@ -109,35 +155,37 @@ export function IPhoneLockScreen() {
           )}
 
           <div className={styles.notifList} ref={notifListRef}>
-            {!expanded && visible.length > 0 ? (
+            {!expanded && stackVisible.length > 0 ? (
               <div
                 className={styles.collapsedStack}
-                onClick={() => visible.length > 1 && setExpanded(true)}
+                onClick={() => stackVisible.length > 1 && setExpanded(true)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && visible.length > 1 && setExpanded(true)}
+                onKeyDown={(e) => e.key === 'Enter' && stackVisible.length > 1 && setExpanded(true)}
               >
                 <div className={styles.stackLayer3} />
                 <div className={styles.stackLayer2} />
                 <div className={styles.stackLayer1} />
                 <IOSNotification
-                  notification={visible[0]}
+                  notification={stackVisible[0]}
                   variant="lockscreen"
-                  badge={visible.length > 1 ? visible.length : undefined}
-                  animating={!visible[0].isSeed}
-                  onDismiss={() => handleDismiss(visible[0].id, visible[0].isSeed)}
+                  badge={allVisible.length > 1 ? allVisible.length : undefined}
+                  animating={false}
+                  onDismiss={() => handleDismiss(stackVisible[0].id, stackVisible[0].isSeed)}
                 />
               </div>
             ) : (
-              visible.map((notification, index) => (
+              stackVisible.map((notification, index) => (
                 <div
                   key={notification.id}
-                  className={`${styles.notifItem} ${!notification.isSeed && index === 0 ? styles.notifNew : ''}`}
+                  className={`${styles.notifItem} ${
+                    !notification.isSeed && index === 0 && bannerExiting ? styles.notifNew : ''
+                  }`}
                 >
                   <IOSNotification
                     notification={notification}
                     variant="lockscreen"
-                    animating={!notification.isSeed && index === 0}
+                    animating={!notification.isSeed && index === 0 && bannerExiting}
                     onDismiss={() => handleDismiss(notification.id, notification.isSeed)}
                   />
                 </div>

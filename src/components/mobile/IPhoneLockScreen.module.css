@@ -5,6 +5,8 @@
   flex-direction: column;
   overflow: hidden;
   background: #000;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .wallpaper {
@@ -28,6 +30,47 @@
   );
 }
 
+/* ── Top banner (new notification holds here before joining stack) ── */
+.topBanner {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.topBannerEnter {
+  animation: bannerDropIn 0.48s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+.topBannerExit {
+  animation: bannerDescend 0.55s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes bannerDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-120%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bannerDescend {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(42vh) scale(0.97);
+  }
+}
+
 /* ── Clock ── */
 .clock {
   position: relative;
@@ -36,7 +79,7 @@
   flex-direction: column;
   align-items: center;
   padding: 0;
-  margin-top: 0;
+  margin-top: 10px;
   flex-shrink: 0;
 }
 

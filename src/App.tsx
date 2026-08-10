@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { MobileCanvas } from './components/mobile/MobileCanvas';
-import { StatusBar } from './components/mobile/StatusBar';
 import { BottomNav } from './components/mobile/BottomNav';
 import { HomeIndicator } from './components/mobile/HomeIndicator';
 import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
@@ -47,7 +46,6 @@ function App() {
             <IPhoneLockScreen />
           ) : (
             <>
-              <StatusBar />
               <StripeTemplate />
               <BottomNav />
               <HomeIndicator />
