@@ -1,14 +1,15 @@
 import type { NotificationRecord } from '../simulation/types';
+import { filterNotificationsByRetention } from './notificationEngine';
 
+/** Merge live + seed notifications, sorted newest first, within iOS retention window */
 export function getLockScreenNotifications(
   live: NotificationRecord[],
   seed: NotificationRecord[],
-  maxVisible = 8
+  retentionDays: number,
+  now = Date.now()
 ): NotificationRecord[] {
-  const activeLive = live.filter((n) => n.status === 'active');
-  const activeSeed = seed.filter((n) => n.status === 'active');
+  const activeLive = filterNotificationsByRetention(live, retentionDays, now);
+  const activeSeed = filterNotificationsByRetention(seed, retentionDays, now);
 
-  return [...activeLive, ...activeSeed]
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, maxVisible);
+  return [...activeLive, ...activeSeed].sort((a, b) => b.timestamp - a.timestamp);
 }

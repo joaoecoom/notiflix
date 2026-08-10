@@ -72,7 +72,15 @@ export function IPhoneLockScreen() {
     return clearBannerTimers;
   }, [liveNotifications, clearBannerTimers]);
 
-  const allVisible = getLockScreenNotifications(liveNotifications, seedNotifications, 8);
+  const notificationRetentionDays = useSimulationStore(
+    (s) => s.settings.notificationRetentionDays
+  );
+  const allVisible = getLockScreenNotifications(
+    liveNotifications,
+    seedNotifications,
+    notificationRetentionDays,
+    now.getTime()
+  );
   const stackVisible =
     topBanner && !bannerExiting
       ? allVisible.filter((n) => n.id !== topBanner.id)
@@ -90,7 +98,7 @@ export function IPhoneLockScreen() {
   };
 
   return (
-    <div className={styles.lockscreen}>
+    <div className={`${styles.lockscreen} ${expanded ? styles.expanded : ''}`}>
       <div className={styles.wallpaper} />
       <div className={styles.depthSubject} aria-hidden />
 
@@ -107,18 +115,19 @@ export function IPhoneLockScreen() {
         </div>
       )}
 
-      <div className={styles.clock}>
-        <span className={styles.date}>{formatLockDate(now)}</span>
-        <div className={styles.timeWrap} aria-label={timeStr}>
-          <span className={styles.timeFill}>{timeStr}</span>
-          <span className={styles.timeStroke} aria-hidden>{timeStr}</span>
+      <div className={styles.topRegion}>
+        <div className={styles.clock}>
+          <span className={styles.date}>{formatLockDate(now)}</span>
+          <div className={styles.timeWrap} aria-label={timeStr}>
+            <span className={styles.timeFill}>{timeStr}</span>
+            <span className={styles.timeStroke} aria-hidden>{timeStr}</span>
+          </div>
         </div>
       </div>
 
-      <div className={styles.spacer} />
-
-      {stackVisible.length > 0 && (
-        <div className={styles.notifCenter}>
+      <div className={styles.contentRegion}>
+        {stackVisible.length > 0 && (
+          <div className={styles.notifCenter}>
           <div className={styles.centerHeader}>
             <span className={styles.centerTitle}>Central de notificações</span>
             <button
@@ -135,17 +144,15 @@ export function IPhoneLockScreen() {
           {expanded && (
             <div className={styles.groupHeader}>
               <span className={styles.groupName}>Stripe</span>
-              {stackVisible.length > 1 && (
-                <button
-                  className={styles.collapseBtn}
-                  onClick={() => setExpanded(false)}
-                >
-                  Mostrar menos
-                  <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
-                    <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              )}
+              <button
+                className={styles.collapseBtn}
+                onClick={() => setExpanded(false)}
+              >
+                Mostrar menos
+                <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
               <button className={styles.clearBtn} aria-label="Limpar Stripe">
                 <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M1 1l8 8M9 1L1 9" strokeLinecap="round" />
@@ -154,14 +161,17 @@ export function IPhoneLockScreen() {
             </div>
           )}
 
-          <div className={styles.notifList} ref={notifListRef}>
+          <div
+            className={`${styles.notifList} ${expanded ? styles.notifListExpanded : ''}`}
+            ref={notifListRef}
+          >
             {!expanded && stackVisible.length > 0 ? (
               <div
                 className={styles.collapsedStack}
-                onClick={() => stackVisible.length > 1 && setExpanded(true)}
+                onClick={() => setExpanded(true)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && stackVisible.length > 1 && setExpanded(true)}
+                onKeyDown={(e) => e.key === 'Enter' && setExpanded(true)}
               >
                 <div className={styles.stackLayer3} />
                 <div className={styles.stackLayer2} />
@@ -192,8 +202,9 @@ export function IPhoneLockScreen() {
               ))
             )}
           </div>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       <div className={styles.bottomControls}>
         <button className={styles.shortcutBtn} aria-label="Lanterna">

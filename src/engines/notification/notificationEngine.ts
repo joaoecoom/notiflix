@@ -19,6 +19,25 @@ export const DEFAULT_STACK_CONFIG: NotificationStackConfig = {
   animationDuration: 350,
 };
 
+export function isNotificationWithinRetention(
+  notification: NotificationRecord,
+  retentionDays: number,
+  now = Date.now()
+): boolean {
+  const retentionMs = retentionDays * 86_400_000;
+  return now - notification.timestamp <= retentionMs;
+}
+
+export function filterNotificationsByRetention(
+  notifications: NotificationRecord[],
+  retentionDays: number,
+  now = Date.now()
+): NotificationRecord[] {
+  return notifications.filter(
+    (n) => n.status === 'active' && isNotificationWithinRetention(n, retentionDays, now)
+  );
+}
+
 export function sortNotificationsByTimestamp(
   notifications: NotificationRecord[]
 ): NotificationRecord[] {

@@ -7,6 +7,21 @@
   background: #000;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  --clock-size: 102px;
+  --date-size: 22px;
+  --clock-stroke: 1.15px;
+  --clock-spacing: -0.048em;
+  --clock-line-height: 0.8;
+  --top-region-pad: 14px;
+}
+
+.lockscreen.expanded {
+  --clock-size: 56px;
+  --date-size: 17px;
+  --clock-stroke: 0.85px;
+  --clock-spacing: -0.042em;
+  --clock-line-height: 0.82;
+  --top-region-pad: 2px;
 }
 
 .wallpaper {
@@ -72,19 +87,31 @@
 }
 
 /* ── Clock (iOS lock screen — ultralight outline + glass fill) ── */
-.clock {
+.topRegion {
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--top-region-pad);
+  transition: padding-top 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.clock {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0 12px;
-  margin-top: 14px;
-  flex-shrink: 0;
+  transform-origin: top center;
+  transition: transform 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.expanded .clock {
+  transform: scale(0.98);
 }
 
 .date {
-  font-size: 22px;
+  font-size: var(--date-size);
   font-weight: 600;
   color: #ffffff;
   letter-spacing: -0.022em;
@@ -92,24 +119,29 @@
   margin-bottom: -2px;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
   font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  transition: font-size 0.48s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .timeWrap {
   position: relative;
   display: inline-block;
-  line-height: 0.8;
+  line-height: var(--clock-line-height);
   margin-top: 2px;
+  transition: line-height 0.48s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .timeFill,
 .timeStroke {
   display: block;
-  font-size: 102px;
+  font-size: var(--clock-size);
   font-weight: 100;
-  letter-spacing: -0.048em;
+  letter-spacing: var(--clock-spacing);
   font-variant-numeric: tabular-nums;
   font-family: -apple-system, 'SF Pro Display', 'SF Pro Rounded', system-ui, sans-serif;
   font-feature-settings: 'tnum' 1;
+  transition:
+    font-size 0.48s cubic-bezier(0.32, 0.72, 0, 1),
+    letter-spacing 0.48s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .timeFill {
@@ -121,8 +153,26 @@
   position: absolute;
   inset: 0;
   color: transparent;
-  -webkit-text-stroke: 1.15px rgba(255, 255, 255, 0.93);
+  -webkit-text-stroke: var(--clock-stroke) rgba(255, 255, 255, 0.93);
   pointer-events: none;
+  transition: -webkit-text-stroke-width 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ── Content region — notifications pin bottom, rise on expand ── */
+.contentRegion {
+  position: relative;
+  z-index: 3;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: justify-content 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.expanded .contentRegion {
+  justify-content: flex-start;
+  padding-top: 6px;
 }
 
 .spacer {
@@ -132,10 +182,22 @@
 
 /* ── Notification Center ── */
 .notifCenter {
-  position: relative;
-  z-index: 3;
   flex-shrink: 0;
-  padding: 0 16px 6px;
+  padding: 0 16px 8px;
+  width: 100%;
+  transform: translateY(0);
+  transition:
+    transform 0.48s cubic-bezier(0.32, 0.72, 0, 1),
+    padding 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.expanded .notifCenter {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4px;
+  transform: translateY(0);
 }
 
 .centerHeader {
@@ -203,9 +265,20 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 290px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   scrollbar-width: none;
+}
+
+.expanded .notifList {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.notifListExpanded {
+  /* legacy hook — expanded state handled by parent */
 }
 
 .notifList::-webkit-scrollbar {
@@ -317,17 +390,15 @@
 }
 
 @media (max-width: 430px) {
-  .date {
-    font-size: 22px;
+  .lockscreen {
+    --clock-size: 98px;
+    --clock-stroke: 1.1px;
+    --clock-spacing: -0.05em;
   }
 
-  .timeFill,
-  .timeStroke {
-    font-size: 98px;
-    letter-spacing: -0.05em;
-  }
-
-  .timeStroke {
-    -webkit-text-stroke-width: 1.1px;
+  .lockscreen.expanded {
+    --clock-size: 54px;
+    --date-size: 17px;
+    --clock-stroke: 0.8px;
   }
 }

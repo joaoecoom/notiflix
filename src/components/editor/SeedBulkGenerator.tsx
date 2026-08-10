@@ -6,6 +6,7 @@ import styles from './BulkGenerator.module.css';
 
 export function SeedBulkGeneratorPanel() {
   const generateBulkSeed = useSimulationStore((s) => s.generateBulkSeed);
+  const retentionDays = useSimulationStore((s) => s.settings.notificationRetentionDays);
 
   const [quantity, setQuantity] = useState(5);
   const [app, setApp] = useState('Stripe');
@@ -13,7 +14,7 @@ export function SeedBulkGeneratorPanel() {
   const [minAmount, setMinAmount] = useState(9);
   const [maxAmount, setMaxAmount] = useState(120);
   const [minOffset, setMinOffset] = useState(1);
-  const [maxOffset, setMaxOffset] = useState(3);
+  const [maxOffset, setMaxOffset] = useState(Math.min(3, retentionDays));
   const [offsetUnit, setOffsetUnit] = useState<'hours' | 'days'>('days');
   const [distribution, setDistribution] = useState(DEFAULT_DISTRIBUTION);
 
@@ -25,6 +26,10 @@ export function SeedBulkGeneratorPanel() {
 
   const handleGenerate = () => {
     if (currencies.length === 0) return;
+    const cappedMax =
+      offsetUnit === 'days'
+        ? Math.min(maxOffset, retentionDays)
+        : Math.min(maxOffset, retentionDays * 24);
     generateBulkSeed({
       quantity,
       app,
@@ -32,7 +37,7 @@ export function SeedBulkGeneratorPanel() {
       minAmount,
       maxAmount,
       minOffsetValue: minOffset,
-      maxOffsetValue: Math.max(minOffset, maxOffset),
+      maxOffsetValue: Math.max(minOffset, cappedMax),
       offsetUnit,
       distribution,
     });
@@ -42,7 +47,7 @@ export function SeedBulkGeneratorPanel() {
     <div className={styles.container}>
       <h3 className={styles.title}>Bulk — notificações existentes</h3>
       <p className={styles.subtitle}>
-        Gera várias notificações no passado (ontem, 2 dias atrás, etc.)
+        Gera várias no passado (máx. {retentionDays} dias — limite de retenção do iOS)
       </p>
 
       <div className={styles.field}>

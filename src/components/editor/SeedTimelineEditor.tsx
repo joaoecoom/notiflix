@@ -35,7 +35,7 @@ export function SeedTimelineEditor() {
       </div>
 
       <p className={styles.hint}>
-        Configura o que já aparece no lock screen antes da simulação (há 1 h, ontem, etc.)
+        O que já aparece no lock screen antes da simulação. Só ficam visíveis dentro da retenção iOS (7 ou 3 dias).
       </p>
 
       <div className={styles.list}>

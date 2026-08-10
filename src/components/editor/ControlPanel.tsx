@@ -1,5 +1,9 @@
 import { useSimulationStore } from '../../store/simulationStore';
 import type { CurrencyCode } from '../../engines/currency';
+import {
+  IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
+  IOS_NOTIFICATION_RETENTION_DAYS_IOS18,
+} from '../../engines/simulation/types';
 import { CurrencySummary } from '../dashboard/CurrencySummary';
 import styles from './ControlPanel.module.css';
 
@@ -23,6 +27,10 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
   const resetSimulation = useSimulationStore((s) => s.resetSimulation);
   const setViewMode = useSimulationStore((s) => s.setViewMode);
   const setCurrencyFilter = useSimulationStore((s) => s.setCurrencyFilter);
+  const notificationRetentionDays = useSimulationStore(
+    (s) => s.settings.notificationRetentionDays
+  );
+  const updateSettings = useSimulationStore((s) => s.updateSettings);
 
   const formatElapsed = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -78,6 +86,31 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
               <span className={styles.screenDesc}>{desc}</span>
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.subheading}>Retenção no iPhone</h3>
+        <p className={styles.hint}>
+          O iOS mantém notificações na Central até as limpares ou expirarem — 7 dias (clássico) ou 3 dias (iOS 18.1+).
+        </p>
+        <div className={styles.currencyFilters}>
+          <button
+            className={`${styles.filterBtn} ${notificationRetentionDays === IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC ? styles.active : ''}`}
+            onClick={() =>
+              updateSettings({ notificationRetentionDays: IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC })
+            }
+          >
+            7 dias
+          </button>
+          <button
+            className={`${styles.filterBtn} ${notificationRetentionDays === IOS_NOTIFICATION_RETENTION_DAYS_IOS18 ? styles.active : ''}`}
+            onClick={() =>
+              updateSettings({ notificationRetentionDays: IOS_NOTIFICATION_RETENTION_DAYS_IOS18 })
+            }
+          >
+            3 dias
+          </button>
         </div>
       </div>
 

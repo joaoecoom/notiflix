@@ -82,6 +82,9 @@ export interface BulkGeneratorConfig {
   intensity: IntensityLevel;
 }
 
+export const IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC = 7;
+export const IOS_NOTIFICATION_RETENTION_DAYS_IOS18 = 3;
+
 export interface SimulationSettings {
   enabledCurrencies: CurrencyCode[];
   distribution: CurrencyDistribution;
@@ -89,6 +92,8 @@ export interface SimulationSettings {
   autoDistribution: boolean;
   intensity: IntensityLevel;
   playbackSpeed: number;
+  /** iOS auto-clears Notification Center after this many days (7 classic, 3 on iOS 18.1+) */
+  notificationRetentionDays: number;
 }
 
 export interface SimulationScenario {
@@ -167,6 +172,7 @@ export const DEFAULT_SETTINGS: SimulationSettings = {
   autoDistribution: true,
   intensity: 'NORMAL',
   playbackSpeed: 1,
+  notificationRetentionDays: IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
 };
 
 export function createEmptyMetrics(): SimulationMetrics {
