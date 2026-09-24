@@ -3,13 +3,14 @@ import { useSimulationStore } from '../../store/simulationStore';
 import type { CurrencyCode } from '../../engines/currency';
 import type { IntensityLevel } from '../../engines/simulation/types';
 import { DEFAULT_DISTRIBUTION } from '../../engines/simulation/types';
+import { PLATFORM_IDS } from '../../engines/platform';
 import styles from './BulkGenerator.module.css';
 
 export function BulkGeneratorPanel() {
   const generateBulk = useSimulationStore((s) => s.generateBulk);
+  const enabledPlatformIds = useSimulationStore((s) => s.enabledPlatformIds);
 
   const [quantity, setQuantity] = useState(100);
-  const [app, setApp] = useState('Stripe');
   const [currencies, setCurrencies] = useState<CurrencyCode[]>(['EUR', 'USD', 'BRL']);
   const [minAmount, setMinAmount] = useState(9);
   const [maxAmount, setMaxAmount] = useState(497);
@@ -29,7 +30,8 @@ export function BulkGeneratorPanel() {
     if (currencies.length === 0) return;
     generateBulk({
       quantity,
-      app,
+      platformId: PLATFORM_IDS.stripe,
+      platformIds: enabledPlatformIds,
       currencies,
       minAmount,
       maxAmount,
@@ -56,10 +58,10 @@ export function BulkGeneratorPanel() {
         />
       </div>
 
-      <div className={styles.field}>
-        <label>Aplicação</label>
-        <input type="text" value={app} onChange={(e) => setApp(e.target.value)} />
-      </div>
+      <p className={styles.subtitle}>
+        Distribui eventos pelas plataformas activas ({enabledPlatformIds.length}):{' '}
+        {enabledPlatformIds.join(', ')}
+      </p>
 
       <div className={styles.field}>
         <label>Moedas</label>

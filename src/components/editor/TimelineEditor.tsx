@@ -2,6 +2,8 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { formatTimelineOffset } from '../../engines/simulation';
 import { formatCurrency } from '../../engines/currency';
 import type { CurrencyCode } from '../../engines/currency';
+import { PLATFORM_IDS } from '../../engines/platform';
+import { PlatformSelect } from './PlatformSelect';
 import styles from './TimelineEditor.module.css';
 
 export function TimelineEditor() {
@@ -25,7 +27,7 @@ export function TimelineEditor() {
               type: 'sale',
               currency: 'EUR',
               amount: 24,
-              app: 'Stripe',
+              platformId: PLATFORM_IDS.stripe,
             })
           }
         >
@@ -52,6 +54,11 @@ export function TimelineEditor() {
                 {formatTimelineOffset(entry.offsetSeconds)}
               </span>
             </div>
+
+            <PlatformSelect
+              value={entry.platformId ?? 'stripe'}
+              onChange={(platformId) => updateTimelineEntry(entry.id, { platformId })}
+            />
 
             <select
               className={styles.select}

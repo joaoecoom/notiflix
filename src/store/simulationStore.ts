@@ -25,6 +25,11 @@ import {
   createDefaultSeedTimeline,
   generateBulkSeedTimeline,
 } from '../engines/notification';
+import {
+  getDefaultEnabledPlatformIds,
+  isPlatformEnabled,
+} from '../engines/platform';
+import type { PreviewScreen } from '../engines/platform/types';
 
 interface SimulationActions {
   setTimeline: (timeline: TimelineEntry[]) => void;
@@ -47,7 +52,9 @@ interface SimulationActions {
   processEventsForElapsed: (elapsedSeconds: number) => void;
   tick: (deltaMs: number) => void;
   setActiveTab: (tab: SimulationState['activeTab']) => void;
-  setViewMode: (mode: SimulationState['viewMode']) => void;
+  setPreviewScreen: (screen: PreviewScreen) => void;
+  togglePlatform: (platformId: string) => void;
+  setEnabledPlatforms: (platformIds: string[]) => void;
   setCurrencyFilter: (filter: CurrencyCode | 'all') => void;
   dismissNotification: (id: string) => void;
   dismissAllNotifications: () => void;
@@ -79,7 +86,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   elapsedTime: 0,
   startTime: null,
   activeTab: 'home',
-  viewMode: 'stripe',
+  previewScreen: 'hub',
+  enabledPlatformIds: getDefaultEnabledPlatformIds(),
+  customPlatforms: [],
   selectedCurrencyFilter: 'all',
   seedNotifications: withSeedNotifications(defaultSeedTimeline),
 
@@ -197,7 +206,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       startTime: Date.now(),
       metrics: resetMetrics(),
       notifications: [],
-      viewMode: 'iphone',
+      previewScreen: 'iphone',
       events: get().events.map((e) => ({ ...e, processed: false })),
     });
     get().processEventsForElapsed(0);
@@ -227,8 +236,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const now = Date.now();
     let changed = false;
 
+    const { enabledPlatformIds } = state;
+
     events = events.map((event) => {
       if (!event.processed && event.offsetSeconds <= elapsedSeconds) {
+        if (!isPlatformEnabled(event.platformId, enabledPlatformIds)) {
+          return { ...event, processed: true, timestamp: now };
+        }
         const result = processEvent(event, metrics, now);
         metrics = result.metrics;
         notifications = [result.notification, ...notifications];
@@ -261,7 +275,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
-  setViewMode: (mode) => set({ viewMode: mode }),
+  setPreviewScreen: (screen) => set({ previewScreen: screen }),
+  togglePlatform: (platformId) => {
+    const current = get().enabledPlatformIds;
+    const next = current.includes(platformId)
+      ? current.filter((id) => id !== platformId)
+      : [...current, platformId];
+    set({ enabledPlatformIds: next.length > 0 ? next : current });
+  },
+  setEnabledPlatforms: (platformIds) => {
+    if (platformIds.length === 0) return;
+    set({ enabledPlatformIds: platformIds });
+  },
   setCurrencyFilter: (filter) => set({ selectedCurrencyFilter: filter }),
 
   dismissNotification: (id) => {

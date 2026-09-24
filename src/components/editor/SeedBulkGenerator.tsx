@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import type { CurrencyCode } from '../../engines/currency';
 import { DEFAULT_DISTRIBUTION } from '../../engines/simulation/types';
+import { PLATFORM_IDS } from '../../engines/platform';
 import styles from './BulkGenerator.module.css';
 
 export function SeedBulkGeneratorPanel() {
   const generateBulkSeed = useSimulationStore((s) => s.generateBulkSeed);
   const retentionDays = useSimulationStore((s) => s.settings.notificationRetentionDays);
+  const enabledPlatformIds = useSimulationStore((s) => s.enabledPlatformIds);
 
   const [quantity, setQuantity] = useState(5);
-  const [app, setApp] = useState('Stripe');
   const [currencies, setCurrencies] = useState<CurrencyCode[]>(['EUR', 'USD', 'BRL']);
   const [minAmount, setMinAmount] = useState(9);
   const [maxAmount, setMaxAmount] = useState(120);
@@ -32,7 +33,8 @@ export function SeedBulkGeneratorPanel() {
         : Math.min(maxOffset, retentionDays * 24);
     generateBulkSeed({
       quantity,
-      app,
+      platformId: PLATFORM_IDS.stripe,
+      platformIds: enabledPlatformIds,
       currencies,
       minAmount,
       maxAmount,
@@ -61,10 +63,9 @@ export function SeedBulkGeneratorPanel() {
         />
       </div>
 
-      <div className={styles.field}>
-        <label>Aplicação</label>
-        <input type="text" value={app} onChange={(e) => setApp(e.target.value)} />
-      </div>
+      <p className={styles.subtitle}>
+        Plataformas activas: {enabledPlatformIds.join(', ')}
+      </p>
 
       <div className={styles.field}>
         <label>Moedas</label>

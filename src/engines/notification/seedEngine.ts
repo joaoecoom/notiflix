@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { formatNotificationAmount } from '../currency/notificationFormat';
 import {
   pickCurrencyByDistribution,
   generateRandomAmount,
 } from '../simulation/simulationEngine';
+import { formatPlatformMessage } from '../platform/messages';
+import { getPlatform, pickRandomPlatformId, resolvePlatformId, PLATFORM_IDS } from '../platform';
 import type {
   NotificationRecord,
   SeedBulkGeneratorConfig,
@@ -21,7 +22,7 @@ export function createDefaultSeedTimeline(): SeedEntry[] {
       clockMinute: 0,
       currency: 'EUR',
       amount: 24,
-      app: 'Stripe',
+      platformId: PLATFORM_IDS.stripe,
     },
   ];
 }
@@ -68,12 +69,15 @@ export function seedEntryToNotification(
   now = Date.now()
 ): NotificationRecord {
   const timestamp = seedEntryToTimestamp(entry, now);
-  const message = `Você recebeu um pagamento de ${formatNotificationAmount(entry.amount, entry.currency)}`;
+  const platformId = resolvePlatformId(entry.platformId, entry.app);
+  const platform = getPlatform(platformId);
+  const message = formatPlatformMessage(platform.messageTemplate, entry.amount, entry.currency);
 
   return {
     id: entry.id,
-    app: entry.app,
-    title: entry.app,
+    platformId,
+    app: platform.name,
+    title: platform.name,
     message,
     amount: entry.amount,
     currency: entry.currency,
@@ -107,6 +111,11 @@ export function generateBulkSeedTimeline(config: SeedBulkGeneratorConfig): SeedE
     const timestamp = resolveBulkSeedTimestamp(offsetValue, config.offsetUnit, now);
     const date = new Date(timestamp);
 
+    const platformIds = config.platformIds?.length
+      ? config.platformIds
+      : [config.platformId];
+    const platformId = pickRandomPlatformId(platformIds);
+
     entries.push({
       id: uuidv4(),
       offsetValue,
@@ -115,7 +124,7 @@ export function generateBulkSeedTimeline(config: SeedBulkGeneratorConfig): SeedE
       clockMinute: config.offsetUnit === 'days' ? date.getMinutes() : 0,
       currency,
       amount,
-      app: config.app,
+      platformId,
     });
   }
 
@@ -145,15 +154,16 @@ function resolveBulkSeedTimestamp(
   return date.getTime();
 }
 
-export function createEmptySeedEntry(app = 'Stripe'): SeedEntry {
+export function createEmptySeedEntry(platformId = PLATFORM_IDS.stripe): SeedEntry {
+  const platform = getPlatform(platformId);
   return {
     id: uuidv4(),
     offsetValue: 1,
     offsetUnit: 'hours' as SeedTimeUnit,
     clockHour: 0,
     clockMinute: 0,
-    currency: 'EUR',
+    currency: platform.defaultCurrency,
     amount: 24,
-    app,
+    platformId,
   };
 }

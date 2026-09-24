@@ -3,6 +3,7 @@ import { MobileCanvas } from './components/mobile/MobileCanvas';
 import { BottomNav } from './components/mobile/BottomNav';
 import { HomeIndicator } from './components/mobile/HomeIndicator';
 import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
+import { PlatformHub } from './components/hub/PlatformHub';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { ControlPanel } from './components/editor/ControlPanel';
 import { TimelineEditor } from './components/editor/TimelineEditor';
@@ -17,7 +18,7 @@ function App() {
   useSimulationLoop();
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
-  const viewMode = useSimulationStore((s) => s.viewMode);
+  const previewScreen = useSimulationStore((s) => s.previewScreen);
 
   const handleSimulationStart = () => {
     setMobilePanelOpen(false);
@@ -51,10 +52,10 @@ function App() {
       </aside>
 
       <main className={styles.preview}>
-        <MobileCanvas showFrame={viewMode === 'stripe'}>
-          {viewMode === 'iphone' ? (
-            <IPhoneLockScreen />
-          ) : (
+        <MobileCanvas showFrame={previewScreen === 'stripe'}>
+          {previewScreen === 'hub' && <PlatformHub />}
+          {previewScreen === 'iphone' && <IPhoneLockScreen />}
+          {previewScreen === 'stripe' && (
             <>
               <StripeTemplate />
               <BottomNav />

@@ -1,7 +1,7 @@
+import { resolvePlatformId } from '../../engines/platform';
 import type { NotificationRecord } from '../../engines/simulation/types';
 import { formatTimestampForDisplay } from '../../engines/notification';
-import { formatNotificationAmount } from '../../engines/currency/notificationFormat';
-import { StripeAppIcon } from './StripeAppIcon';
+import { PlatformIcon } from './PlatformIcon';
 import styles from './IOSNotification.module.css';
 
 interface IOSNotificationProps {
@@ -23,11 +23,9 @@ export function IOSNotification({
   badge,
   showAppName = true,
 }: IOSNotificationProps) {
+  const platformId = resolvePlatformId(notification.platformId, notification.app);
   const timestamp = formatTimestampForDisplay(notification);
-  const message =
-    notification.message.includes('pagamento')
-      ? `Você recebeu um pagamento de ${formatNotificationAmount(notification.amount, notification.currency)}`
-      : notification.message;
+  const message = notification.message;
 
   const handleClick = variant === 'lockscreen' ? undefined : onDismiss;
 
@@ -38,7 +36,10 @@ export function IOSNotification({
       role="alert"
     >
       <div className={styles.iconWrapper}>
-        <StripeAppIcon size={variant === 'lockscreen' ? 40 : 38} />
+        <PlatformIcon
+          platformId={platformId}
+          size={variant === 'lockscreen' ? 40 : 38}
+        />
         {badge != null && badge > 1 && (
           <span className={styles.badge}>{badge}</span>
         )}

@@ -87,6 +87,12 @@
   animation: pulse 1.5s infinite;
 }
 
+.platformToggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .viewModes {
   display: flex;
   flex-direction: column;

@@ -14,6 +14,13 @@ import type {
   CurrencyDistribution,
 } from './types';
 import { createEmptyMetrics } from './types';
+import {
+  PLATFORM_IDS,
+  getPlatform,
+  pickRandomPlatformId,
+  resolvePlatformId,
+} from '../platform';
+import { formatPlatformMessage } from '../platform/messages';
 
 const INTENSITY_MULTIPLIERS: Record<IntensityLevel, { min: number; max: number }> = {
   LOW: { min: 30, max: 180 },
@@ -24,27 +31,36 @@ const INTENSITY_MULTIPLIERS: Record<IntensityLevel, { min: number; max: number }
 
 export function createDefaultTimeline(): TimelineEntry[] {
   return [
-    { id: uuidv4(), offsetSeconds: 0, type: 'sale', currency: 'EUR', amount: 24, app: 'Stripe' },
-    { id: uuidv4(), offsetSeconds: 18, type: 'sale', currency: 'BRL', amount: 216.15, app: 'Stripe' },
-    { id: uuidv4(), offsetSeconds: 43, type: 'sale', currency: 'USD', amount: 97, app: 'Stripe' },
-    { id: uuidv4(), offsetSeconds: 72, type: 'sale', currency: 'EUR', amount: 9, app: 'Stripe' },
-    { id: uuidv4(), offsetSeconds: 108, type: 'sale', currency: 'BRL', amount: 84.78, app: 'Stripe' },
+    { id: uuidv4(), offsetSeconds: 0, type: 'sale', currency: 'EUR', amount: 24, platformId: PLATFORM_IDS.stripe },
+    { id: uuidv4(), offsetSeconds: 18, type: 'sale', currency: 'BRL', amount: 216.15, platformId: PLATFORM_IDS.stripe },
+    { id: uuidv4(), offsetSeconds: 43, type: 'sale', currency: 'USD', amount: 97, platformId: PLATFORM_IDS.stripe },
+    { id: uuidv4(), offsetSeconds: 72, type: 'sale', currency: 'EUR', amount: 9, platformId: PLATFORM_IDS.utmify },
+    { id: uuidv4(), offsetSeconds: 95, type: 'sale', currency: 'BRL', amount: 47, platformId: PLATFORM_IDS.hotmart },
+    { id: uuidv4(), offsetSeconds: 108, type: 'sale', currency: 'BRL', amount: 84.78, platformId: PLATFORM_IDS.stripe },
   ];
 }
 
 export function timelineToEvents(timeline: TimelineEntry[]): SimulationEvent[] {
-  return timeline.map((entry) => ({
-    id: entry.id,
-    type: entry.type,
-    amount: entry.amount,
-    currency: entry.currency,
-    timestamp: 0,
-    offsetSeconds: entry.offsetSeconds,
-    app: entry.app,
-    title: entry.app,
-    message: entry.message ?? buildSaleMessage(entry.amount, entry.currency),
-    processed: false,
-  }));
+  return timeline.map((entry) => {
+    const platformId = resolvePlatformId(entry.platformId, entry.app);
+    const platform = getPlatform(platformId);
+    const message =
+      entry.message ??
+      formatPlatformMessage(platform.messageTemplate, entry.amount, entry.currency);
+    return {
+      id: entry.id,
+      type: entry.type,
+      amount: entry.amount,
+      currency: entry.currency,
+      timestamp: 0,
+      offsetSeconds: entry.offsetSeconds,
+      platformId,
+      app: platform.name,
+      title: platform.name,
+      message,
+      processed: false,
+    };
+  });
 }
 
 export function buildSaleMessage(amount: number, currency: CurrencyCode): string {
@@ -59,18 +75,22 @@ export function processEvent(
   const newMetrics = { ...metrics, byCurrency: { ...metrics.byCurrency } };
   const currencyMetrics = { ...newMetrics.byCurrency[event.currency] };
 
-  if (event.type === 'sale') {
+  const affectsStripeMetrics = event.platformId === PLATFORM_IDS.stripe;
+
+  if (event.type === 'sale' && affectsStripeMetrics) {
     currencyMetrics.revenue += event.amount;
     currencyMetrics.payments += 1;
     currencyMetrics.balance += event.amount;
     currencyMetrics.customers += 1;
-  } else if (event.type === 'refund') {
+  } else if (event.type === 'refund' && affectsStripeMetrics) {
     currencyMetrics.refunds += event.amount;
     currencyMetrics.balance -= event.amount;
   }
 
   newMetrics.byCurrency[event.currency] = currencyMetrics;
-  newMetrics.totalEvents += 1;
+  if (affectsStripeMetrics) {
+    newMetrics.totalEvents += 1;
+  }
 
   const transaction: TransactionRecord = {
     id: uuidv4(),
@@ -96,10 +116,13 @@ export function processEvent(
     cumulative: { ...cumulative },
   };
 
-  newMetrics.chartData = [...newMetrics.chartData, chartPoint].slice(-100);
+  if (affectsStripeMetrics) {
+    newMetrics.chartData = [...newMetrics.chartData, chartPoint].slice(-100);
+  }
 
   const notification: NotificationRecord = {
     id: uuidv4(),
+    platformId: event.platformId,
     app: event.app,
     title: event.app,
     message: event.message ?? buildSaleMessage(event.amount, event.currency),
@@ -176,13 +199,18 @@ export function generateBulkTimeline(config: BulkGeneratorConfig): TimelineEntry
 
     if (i > 0) currentOffset += interval;
 
+    const platformIds = config.platformIds?.length
+      ? config.platformIds
+      : [config.platformId];
+    const platformId = pickRandomPlatformId(platformIds);
+
     entries.push({
       id: uuidv4(),
       offsetSeconds: currentOffset,
       type: 'sale',
       currency,
       amount,
-      app: config.app,
+      platformId,
     });
   }
 

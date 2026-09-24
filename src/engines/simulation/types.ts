@@ -1,4 +1,5 @@
 import type { CurrencyCode } from '../currency';
+import type { PlatformDefinition, PreviewScreen } from '../platform/types';
 
 export type EventType = 'sale' | 'refund' | 'payout' | 'customer';
 
@@ -13,6 +14,7 @@ export interface SimulationEvent {
   currency: CurrencyCode;
   timestamp: number;
   offsetSeconds: number;
+  platformId: string;
   app: string;
   appIcon?: string;
   title?: string;
@@ -27,7 +29,9 @@ export interface TimelineEntry {
   type: EventType;
   currency: CurrencyCode;
   amount: number;
-  app: string;
+  platformId: string;
+  /** @deprecated use platformId */
+  app?: string;
   message?: string;
 }
 
@@ -71,7 +75,8 @@ export interface CurrencyDistribution {
 
 export interface BulkGeneratorConfig {
   quantity: number;
-  app: string;
+  platformId: string;
+  platformIds?: string[];
   currencies: CurrencyCode[];
   minAmount: number;
   maxAmount: number;
@@ -112,12 +117,14 @@ export interface SeedEntry {
   clockMinute: number;
   currency: CurrencyCode;
   amount: number;
-  app: string;
+  platformId: string;
+  app?: string;
 }
 
 export interface SeedBulkGeneratorConfig {
   quantity: number;
-  app: string;
+  platformId: string;
+  platformIds?: string[];
   currencies: CurrencyCode[];
   minAmount: number;
   maxAmount: number;
@@ -139,13 +146,16 @@ export interface SimulationState {
   elapsedTime: number;
   startTime: number | null;
   activeTab: 'home' | 'payments' | 'balances' | 'customers' | 'search';
-  viewMode: 'stripe' | 'iphone';
+  previewScreen: PreviewScreen;
+  enabledPlatformIds: string[];
+  customPlatforms: PlatformDefinition[];
   seedNotifications: NotificationRecord[];
   selectedCurrencyFilter: CurrencyCode | 'all';
 }
 
 export interface NotificationRecord {
   id: string;
+  platformId: string;
   app: string;
   appIcon?: string;
   title: string;

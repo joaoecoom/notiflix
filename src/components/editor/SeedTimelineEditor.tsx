@@ -3,6 +3,8 @@ import { formatCurrency } from '../../engines/currency';
 import { formatSeedOffsetLabel } from '../../engines/notification';
 import type { CurrencyCode } from '../../engines/currency';
 import type { SeedTimeUnit } from '../../engines/simulation/types';
+import { PLATFORM_IDS } from '../../engines/platform';
+import { PlatformSelect } from './PlatformSelect';
 import styles from './TimelineEditor.module.css';
 
 export function SeedTimelineEditor() {
@@ -26,7 +28,7 @@ export function SeedTimelineEditor() {
               clockMinute: 0,
               currency: 'EUR',
               amount: 24,
-              app: 'Stripe',
+              platformId: PLATFORM_IDS.stripe,
             })
           }
         >
@@ -103,6 +105,11 @@ export function SeedTimelineEditor() {
                 />
               </div>
             )}
+
+            <PlatformSelect
+              value={entry.platformId ?? 'stripe'}
+              onChange={(platformId) => updateSeedEntry(entry.id, { platformId })}
+            />
 
             <select
               className={styles.select}
