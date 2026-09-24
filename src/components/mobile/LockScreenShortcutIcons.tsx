@@ -14,26 +14,16 @@ export function LockScreenFlashlightIcon() {
   );
 }
 
-const LOCK_CAMERA_MASK = '/ios-lock-camera.png';
-
 export function LockScreenCameraIcon() {
   return (
-    <span
+    <svg
+      width="26"
+      height="20"
+      viewBox="0 0 26 20"
+      fill="currentColor"
       aria-hidden
-      style={{
-        display: 'block',
-        width: 28,
-        height: 22,
-        backgroundColor: 'currentColor',
-        WebkitMaskImage: `url(${LOCK_CAMERA_MASK})`,
-        maskImage: `url(${LOCK_CAMERA_MASK})`,
-        WebkitMaskSize: 'contain',
-        maskSize: 'contain',
-        WebkitMaskRepeat: 'no-repeat',
-        maskRepeat: 'no-repeat',
-        WebkitMaskPosition: 'center',
-        maskPosition: 'center',
-      }}
-    />
+    >
+      <path d="M8.15 3.2h2.35l1.05-1.55c.22-.33.58-.55.98-.55h4.34c.4 0 .76.22.98.55l1.05 1.55h2.6c1.21 0 2.2.99 2.2 2.2v10.1c0 1.21-.99 2.2-2.2 2.2H5.95c-1.21 0-2.2-.99-2.2-2.2V5.4c0-1.21.99-2.2 2.2-2.2h2.2zm4.85 3.55a4.75 4.75 0 100 9.5 4.75 4.75 0 000-9.5zm0 1.65a3.1 3.1 0 110 6.2 3.1 3.1 0 010-6.2z" />
+    </svg>
   );
 }
