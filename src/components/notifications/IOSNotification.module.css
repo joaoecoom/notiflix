@@ -89,6 +89,10 @@
   letter-spacing: -0.01em;
   line-height: 20px;
   color: var(--text-primary);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .timestamp {
@@ -106,6 +110,9 @@
   line-height: 20px;
   color: rgba(255, 255, 255, 0.92);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .titleLine {
@@ -116,6 +123,9 @@
   color: var(--text-primary);
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subtitle {
@@ -125,6 +135,9 @@
   line-height: 20px;
   color: rgba(255, 255, 255, 0.72);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .messageOnly {
@@ -134,6 +147,9 @@
   color: rgba(255, 255, 255, 0.92);
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .banner {

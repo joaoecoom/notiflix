@@ -9,6 +9,7 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
   container-type: size;
   --clock-size: 46cqw;
+  --clock-scale-x: 1;
   --clock-scale-y: 1.5;
   --clock-lift: 8px;
   --date-size: 19px;
@@ -17,9 +18,10 @@
 }
 
 .lockscreen.expanded {
-  --clock-size: 22cqw;
+  --clock-size: 27.5cqw;
+  --clock-scale-x: 1.38;
   --clock-scale-y: 1;
-  --clock-lift: -4px;
+  --clock-lift: 5px;
   --date-size: 17px;
   --top-region-pad: 2px;
 }
@@ -56,6 +58,88 @@
     rgba(0, 0, 0, 0.2) 85%,
     rgba(0, 0, 0, 0.4) 100%
   );
+}
+
+/* Desktop preview only — on a real iPhone the system status bar is shown instead */
+.statusBar {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54px;
+  z-index: 4;
+  pointer-events: none;
+  color: #fff;
+}
+
+@media (min-width: 431px) {
+  .statusBar {
+    display: block;
+  }
+
+  .lockscreen {
+    padding-top: 59px;
+  }
+
+  .topBanner {
+    top: 59px;
+  }
+}
+
+.carrier {
+  position: absolute;
+  left: 58px;
+  top: 27px;
+  transform: translateY(-50%);
+  font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.signal {
+  position: absolute;
+  left: 279px;
+  top: 22.5px;
+}
+
+.wifi {
+  position: absolute;
+  left: 306px;
+  top: 20px;
+}
+
+.battery {
+  position: absolute;
+  left: 331px;
+  top: 20px;
+  width: 25px;
+  height: 12.5px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 4px;
+}
+
+.battery::after {
+  content: '';
+  position: absolute;
+  right: -3.5px;
+  top: 50%;
+  width: 1.5px;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 0 1px 1px 0;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.batteryFill {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 2px;
+  background: #fff;
 }
 
 /* ── Top banner (new notification holds here before joining stack) ── */
@@ -136,12 +220,12 @@
   display: inline-block;
   font-family: 'Antonio Variable', 'SF Pro Display', system-ui, sans-serif;
   font-size: var(--clock-size);
-  font-weight: 230;
+  font-weight: 340;
   line-height: 1.2;
   letter-spacing: var(--clock-spacing);
   font-variant-numeric: tabular-nums;
   transform-origin: top center;
-  transform: scaleY(var(--clock-scale-y));
+  transform: scale(var(--clock-scale-x), var(--clock-scale-y));
   margin-top: calc(var(--clock-size) * -0.1 * var(--clock-scale-y) - var(--clock-lift));
   margin-bottom: calc(var(--clock-size) * 1.2 * (var(--clock-scale-y) - 1) - var(--clock-size) * 0.12);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.22));
@@ -161,10 +245,9 @@
   color: transparent;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.66) 0%,
-    rgba(255, 255, 255, 0.46) 45%,
-    rgba(255, 255, 255, 0.4) 70%,
-    rgba(255, 255, 255, 0.52) 100%
+    rgba(255, 255, 255, 0.36) 0%,
+    rgba(255, 255, 255, 0.3) 45%,
+    rgba(255, 255, 255, 0.28) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -174,7 +257,7 @@
   position: absolute;
   inset: 0;
   color: transparent;
-  -webkit-text-stroke: 0.6px rgba(255, 255, 255, 0.5);
+  -webkit-text-stroke: 0.7px rgba(255, 255, 255, 0.62);
   pointer-events: none;
 }
 
@@ -192,7 +275,7 @@
 
 .expanded .contentRegion {
   justify-content: flex-start;
-  padding-top: 6px;
+  padding-top: 18px;
 }
 
 .spacer {
@@ -229,15 +312,18 @@
 }
 
 .centerTitle {
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 600;
   color: #ffffff;
   letter-spacing: -0.022em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .clearBtn {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(80, 80, 84, 0.55);
   backdrop-filter: blur(20px);

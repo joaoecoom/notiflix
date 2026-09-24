@@ -11,6 +11,7 @@ import {
   LockScreenCameraIcon,
   LockScreenFlashlightIcon,
 } from './LockScreenShortcutIcons';
+import { LockScreenStatusBar } from './LockScreenStatusBar';
 import styles from './IPhoneLockScreen.module.css';
 
 const BANNER_HOLD_MS = 4500;
@@ -38,6 +39,7 @@ export function IPhoneLockScreen() {
 
   const [now, setNow] = useState(new Date());
   const [expanded, setExpanded] = useState(false);
+  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
   const [topBanner, setTopBanner] = useState<NotificationRecord | null>(null);
   const [bannerExiting, setBannerExiting] = useState(false);
   const prevLiveCount = useRef(liveNotifications.length);
@@ -65,6 +67,7 @@ export function IPhoneLockScreen() {
         setTopBanner(newest);
         setBannerExiting(false);
         setExpanded(false);
+        setOpenGroupId(null);
 
         bannerHoldTimer.current = setTimeout(() => {
           setBannerExiting(true);
@@ -113,6 +116,7 @@ export function IPhoneLockScreen() {
     <div className={`${styles.lockscreen} ${expanded ? styles.expanded : ''}`}>
       <div className={styles.wallpaper} />
       <div className={styles.depthSubject} aria-hidden />
+      <LockScreenStatusBar />
 
       {topBanner && (
         <div
@@ -127,7 +131,13 @@ export function IPhoneLockScreen() {
         </div>
       )}
 
-      <div className={styles.topRegion}>
+      <div
+        className={styles.topRegion}
+        onClick={() => {
+          setExpanded(false);
+          setOpenGroupId(null);
+        }}
+      >
         <div className={styles.clock}>
           <span className={styles.date}>{formatLockDate(now)}</span>
           <div className={styles.timeWrap} aria-label={timeStr}>
@@ -149,7 +159,7 @@ export function IPhoneLockScreen() {
               aria-label="Limpar"
               onClick={dismissAllNotifications}
             >
-              <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <svg width="11" height="11" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M1 1l8 8M9 1L1 9" strokeLinecap="round" />
               </svg>
             </button>
@@ -179,46 +189,75 @@ export function IPhoneLockScreen() {
                 />
               </div>
             ) : (
-              platformGroups.map((group, groupIndex) => (
-                <div key={group.platformId} className={styles.platformGroup}>
-                  <div className={styles.groupHeader}>
-                    <span className={styles.groupName}>
-                      {getPlatform(group.platformId, customPlatforms).name}
-                    </span>
-                    {groupIndex === 0 && (
-                      <button
-                        type="button"
-                        className={styles.collapseBtn}
-                        onClick={() => setExpanded(false)}
-                      >
-                        Mostrar menos
-                        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
-                          <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                  {group.items.map((notification, index) => (
+              platformGroups.map((group, groupIndex) => {
+                const count = group.items.length;
+                const isOpen = openGroupId === group.platformId;
+
+                if (!isOpen && count > 1) {
+                  return (
                     <div
-                      key={notification.id}
-                      className={`${styles.notifItem} ${
-                        !notification.isSeed && groupIndex === 0 && index === 0 && bannerExiting
-                          ? styles.notifNew
-                          : ''
-                      }`}
+                      key={group.platformId}
+                      className={styles.collapsedStack}
+                      onClick={() => setOpenGroupId(group.platformId)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && setOpenGroupId(group.platformId)}
                     >
+                      {count > 2 && <div className={styles.stackLayer2} />}
+                      <div className={styles.stackLayer1} />
                       <IOSNotification
-                        notification={notification}
+                        notification={group.items[0]}
                         variant="lockscreen"
+                        badge={count}
                         animating={
-                          !notification.isSeed && groupIndex === 0 && index === 0 && bannerExiting
+                          !group.items[0].isSeed && groupIndex === 0 && bannerExiting
                         }
-                        onDismiss={() => handleDismiss(notification.id, notification.isSeed)}
                       />
                     </div>
-                  ))}
-                </div>
-              ))
+                  );
+                }
+
+                return (
+                  <div key={group.platformId} className={styles.platformGroup}>
+                    {isOpen && (
+                      <div className={styles.groupHeader}>
+                        <span className={styles.groupName}>
+                          {getPlatform(group.platformId, customPlatforms).name}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.collapseBtn}
+                          onClick={() => setOpenGroupId(null)}
+                        >
+                          Mostrar menos
+                          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
+                            <path d="M2 4l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                    {group.items.map((notification, index) => (
+                      <div
+                        key={notification.id}
+                        className={`${styles.notifItem} ${
+                          !notification.isSeed && groupIndex === 0 && index === 0 && bannerExiting
+                            ? styles.notifNew
+                            : ''
+                        }`}
+                      >
+                        <IOSNotification
+                          notification={notification}
+                          variant="lockscreen"
+                          animating={
+                            !notification.isSeed && groupIndex === 0 && index === 0 && bannerExiting
+                          }
+                          onDismiss={() => handleDismiss(notification.id, notification.isSeed)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              })
             )}
           </div>
           </div>
