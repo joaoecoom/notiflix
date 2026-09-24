@@ -7,6 +7,10 @@ import {
 } from '../../engines/notification';
 import { getPlatform } from '../../engines/platform';
 import { IOSNotification } from '../notifications/IOSNotification';
+import {
+  LockScreenCameraIcon,
+  LockScreenFlashlightIcon,
+} from './LockScreenShortcutIcons';
 import styles from './IPhoneLockScreen.module.css';
 
 const BANNER_HOLD_MS = 4500;
@@ -220,17 +224,11 @@ export function IPhoneLockScreen() {
       </div>
 
       <div className={styles.bottomControls}>
-        <button className={styles.shortcutBtn} aria-label="Lanterna">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-            <path d="M9 18l3-3V6a3 3 0 016 0v9l3 3" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M12 21v-3" strokeLinecap="round" />
-          </svg>
+        <button type="button" className={styles.shortcutBtn} aria-label="Lanterna" tabIndex={-1}>
+          <LockScreenFlashlightIcon />
         </button>
-        <button className={styles.shortcutBtn} aria-label="Câmara">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-            <rect x="3" y="6" width="18" height="13" rx="2.2" />
-            <circle cx="12" cy="12.5" r="3.2" />
-          </svg>
+        <button type="button" className={styles.shortcutBtn} aria-label="Câmara" tabIndex={-1}>
+          <LockScreenCameraIcon />
         </button>
       </div>
 

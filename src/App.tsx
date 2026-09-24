@@ -17,11 +17,27 @@ import styles from './App.module.css';
 function App() {
   useSimulationLoop();
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [settingsFabVisible, setSettingsFabVisible] = useState(true);
 
   const previewScreen = useSimulationStore((s) => s.previewScreen);
 
   const handleSimulationStart = () => {
     setMobilePanelOpen(false);
+  };
+
+  const toggleSettingsFab = () => {
+    setSettingsFabVisible((visible) => {
+      if (visible) setMobilePanelOpen(false);
+      return !visible;
+    });
+  };
+
+  const handlePreviewDoubleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+      return;
+    }
+    toggleSettingsFab();
   };
 
   return (
@@ -51,7 +67,7 @@ function App() {
         <SeedBulkGeneratorPanel />
       </aside>
 
-      <main className={styles.preview}>
+      <main className={styles.preview} onDoubleClick={handlePreviewDoubleClick}>
         <MobileCanvas showFrame={previewScreen === 'stripe'}>
           {previewScreen === 'hub' && <PlatformHub />}
           {previewScreen === 'iphone' && <IPhoneLockScreen />}
@@ -65,9 +81,13 @@ function App() {
         </MobileCanvas>
 
         <button
-          className={styles.mobileFab}
+          type="button"
+          className={`${styles.mobileFab} ${settingsFabVisible ? '' : styles.mobileFabHidden}`}
           onClick={() => setMobilePanelOpen(true)}
+          onDoubleClick={(e) => e.stopPropagation()}
           aria-label="Controlos"
+          aria-hidden={!settingsFabVisible}
+          tabIndex={settingsFabVisible ? 0 : -1}
         >
           ⚙
         </button>
