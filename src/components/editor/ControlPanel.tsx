@@ -4,10 +4,11 @@ import {
   IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
   IOS_NOTIFICATION_RETENTION_DAYS_IOS18,
 } from '../../engines/simulation/types';
-import { getBuiltinPlatforms } from '../../engines/platform';
+import { getAmbientApps, getBuiltinPlatforms } from '../../engines/platform';
 import type { PreviewScreen } from '../../engines/platform/types';
 import { CurrencySummary } from '../dashboard/CurrencySummary';
 import styles from './ControlPanel.module.css';
+import fieldStyles from './BulkGenerator.module.css';
 
 const SCREENS: { id: PreviewScreen; label: string; desc: string }[] = [
   { id: 'hub', label: 'Hub', desc: 'Escolher plataformas' },
@@ -36,8 +37,20 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
     (s) => s.settings.notificationRetentionDays
   );
   const updateSettings = useSimulationStore((s) => s.updateSettings);
+  const lastUnlockMinutesAgo = useSimulationStore((s) => s.settings.lastUnlockMinutesAgo);
+  const maxLockScreenNotifications = useSimulationStore(
+    (s) => s.settings.maxLockScreenNotifications
+  );
+  const ambientEnabledIds = useSimulationStore((s) => s.ambientEnabledIds);
+  const ambientCountRange = useSimulationStore((s) => s.ambientCountRange);
+  const toggleAmbientApp = useSimulationStore((s) => s.toggleAmbientApp);
+  const setAmbientCountRange = useSimulationStore((s) => s.setAmbientCountRange);
+  const regenerateAmbientNotifications = useSimulationStore(
+    (s) => s.regenerateAmbientNotifications
+  );
 
   const platforms = getBuiltinPlatforms();
+  const ambientApps = getAmbientApps();
 
   const formatElapsed = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -115,10 +128,100 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
       </div>
 
       <div className={styles.section}>
+        <h3 className={styles.subheading}>Ecrã de bloqueio</h3>
+        <p className={styles.hint}>
+          O iPhone só mostra no ecrã de bloqueio o que chegou desde o último desbloqueio. As
+          existentes (e as outras apps) ficam dentro dessa janela.
+        </p>
+        <div className={fieldStyles.row}>
+          <div className={fieldStyles.field}>
+            <label>Último desbloqueio (min atrás)</label>
+            <input
+              type="number"
+              min={5}
+              max={notificationRetentionDays * 24 * 60}
+              value={lastUnlockMinutesAgo}
+              onChange={(e) =>
+                updateSettings({
+                  lastUnlockMinutesAgo: Math.min(
+                    notificationRetentionDays * 24 * 60,
+                    Math.max(5, parseInt(e.target.value) || 5)
+                  ),
+                })
+              }
+            />
+          </div>
+          <div className={fieldStyles.field}>
+            <label>Máx. notificações</label>
+            <input
+              type="number"
+              min={1}
+              max={200}
+              value={maxLockScreenNotifications}
+              onChange={(e) =>
+                updateSettings({
+                  maxLockScreenNotifications: Math.max(1, parseInt(e.target.value) || 1),
+                })
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.subheading}>Outras apps</h3>
+        <p className={styles.hint}>
+          Aparecem em resumo (“N Notificações”) para o ecrã não parecer só de vendas.
+        </p>
+        <div className={styles.platformToggles}>
+          {ambientApps.map((app) => (
+            <button
+              key={app.id}
+              type="button"
+              className={`${styles.filterBtn} ${ambientEnabledIds.includes(app.id) ? styles.active : ''}`}
+              onClick={() => toggleAmbientApp(app.id)}
+            >
+              {app.name}
+            </button>
+          ))}
+        </div>
+        <div className={fieldStyles.row}>
+          <div className={fieldStyles.field}>
+            <label>Mín. por app</label>
+            <input
+              type="number"
+              min={1}
+              max={99}
+              value={ambientCountRange.min}
+              onChange={(e) => {
+                const min = Math.max(1, parseInt(e.target.value) || 1);
+                setAmbientCountRange({ min, max: Math.max(min, ambientCountRange.max) });
+              }}
+            />
+          </div>
+          <div className={fieldStyles.field}>
+            <label>Máx. por app</label>
+            <input
+              type="number"
+              min={1}
+              max={99}
+              value={ambientCountRange.max}
+              onChange={(e) => {
+                const max = Math.max(1, parseInt(e.target.value) || 1);
+                setAmbientCountRange({ min: Math.min(ambientCountRange.min, max), max });
+              }}
+            />
+          </div>
+        </div>
+        <button type="button" className={styles.resetBtn} onClick={regenerateAmbientNotifications}>
+          Gerar de novo
+        </button>
+      </div>
+
+      <div className={styles.section}>
         <h3 className={styles.subheading}>Retenção no iPhone</h3>
         <p className={styles.hint}>
-          O iOS mantém notificações na Central até as limpares ou expirarem — 7 dias (clássico) ou 3
-          dias (iOS 18.1+).
+          Limite máximo da Central: 7 dias (clássico) ou 3 dias (iOS 18.1+).
         </p>
         <div className={styles.currencyFilters}>
           <button

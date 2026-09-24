@@ -9,6 +9,7 @@ import type {
   SeedEntry,
   SeedBulkGeneratorConfig,
 } from '../engines/simulation';
+import type { CountRange } from '../engines/simulation/types';
 import {
   createDefaultTimeline,
   timelineToEvents,
@@ -22,8 +23,10 @@ import {
 } from '../engines/simulation/types';
 import {
   buildSeedNotifications,
+  buildAmbientNotifications,
   createDefaultSeedTimeline,
   generateBulkSeedTimeline,
+  DEFAULT_AMBIENT_COUNT_RANGE,
 } from '../engines/notification';
 import {
   getDefaultEnabledPlatformIds,
@@ -59,15 +62,23 @@ interface SimulationActions {
   dismissNotification: (id: string) => void;
   dismissAllNotifications: () => void;
   dismissSeedNotification: (id: string) => void;
+  toggleAmbientApp: (appId: string) => void;
+  setAmbientCountRange: (range: CountRange) => void;
+  regenerateAmbientNotifications: () => void;
 }
 
 type SimulationStore = SimulationState & SimulationActions;
 
 const defaultTimeline = createDefaultTimeline();
 const defaultSeedTimeline = createDefaultSeedTimeline();
+const defaultAmbientIds = ['instagram', 'youtube', 'phone'];
 
 function withSeedNotifications(seedTimeline: SeedEntry[]) {
   return buildSeedNotifications(seedTimeline);
+}
+
+function withAmbientNotifications(ids: string[], range: CountRange, lastUnlockMinutesAgo: number) {
+  return buildAmbientNotifications(ids, range, lastUnlockMinutesAgo);
 }
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
@@ -91,6 +102,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   customPlatforms: [],
   selectedCurrencyFilter: 'all',
   seedNotifications: withSeedNotifications(defaultSeedTimeline),
+  ambientEnabledIds: defaultAmbientIds,
+  ambientCountRange: DEFAULT_AMBIENT_COUNT_RANGE,
+  ambientNotifications: withAmbientNotifications(
+    defaultAmbientIds,
+    DEFAULT_AMBIENT_COUNT_RANGE,
+    DEFAULT_SETTINGS.lastUnlockMinutesAgo
+  ),
 
   setTimeline: (timeline) => {
     set({
@@ -196,16 +214,27 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   updateSettings: (settings) => {
-    set({ settings: { ...get().settings, ...settings } });
+    const next = { ...get().settings, ...settings };
+    set({ settings: next });
+    if (settings.lastUnlockMinutesAgo !== undefined) {
+      get().regenerateAmbientNotifications();
+    }
   },
 
   startSimulation: () => {
+    const { seedTimeline, ambientEnabledIds, ambientCountRange, settings } = get();
     set({
       isRunning: true,
       elapsedTime: 0,
       startTime: Date.now(),
       metrics: resetMetrics(),
       notifications: [],
+      seedNotifications: withSeedNotifications(seedTimeline),
+      ambientNotifications: withAmbientNotifications(
+        ambientEnabledIds,
+        ambientCountRange,
+        settings.lastUnlockMinutesAgo
+      ),
       previewScreen: 'iphone',
       events: get().events.map((e) => ({ ...e, processed: false })),
     });
@@ -217,8 +246,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   resetSimulation: () => {
-    const timeline = get().timeline;
-    const seedTimeline = get().seedTimeline;
+    const { timeline, seedTimeline, ambientEnabledIds, ambientCountRange, settings } = get();
     set({
       isRunning: false,
       elapsedTime: 0,
@@ -226,6 +254,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       metrics: resetMetrics(),
       notifications: [],
       seedNotifications: withSeedNotifications(seedTimeline),
+      ambientNotifications: withAmbientNotifications(
+        ambientEnabledIds,
+        ambientCountRange,
+        settings.lastUnlockMinutesAgo
+      ),
       events: timelineToEvents(timeline),
     });
   },
@@ -307,15 +340,43 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         ...n,
         status: 'dismissed' as const,
       })),
+      ambientNotifications: get().ambientNotifications.map((n) => ({
+        ...n,
+        status: 'dismissed' as const,
+      })),
     });
   },
 
   dismissSeedNotification: (id) => {
     set({
       seedTimeline: get().seedTimeline.filter((e) => e.id !== id),
-      seedNotifications: get().seedNotifications
-        .map((n) => (n.id === id ? { ...n, status: 'dismissed' as const } : n))
-        .filter((n) => n.id !== id),
+      seedNotifications: get().seedNotifications.filter((n) => n.id !== id),
+      ambientNotifications: get().ambientNotifications.filter((n) => n.id !== id),
+    });
+  },
+
+  toggleAmbientApp: (appId) => {
+    const current = get().ambientEnabledIds;
+    const ambientEnabledIds = current.includes(appId)
+      ? current.filter((id) => id !== appId)
+      : [...current, appId];
+    set({ ambientEnabledIds });
+    get().regenerateAmbientNotifications();
+  },
+
+  setAmbientCountRange: (range) => {
+    set({ ambientCountRange: range });
+    get().regenerateAmbientNotifications();
+  },
+
+  regenerateAmbientNotifications: () => {
+    const { ambientEnabledIds, ambientCountRange, settings } = get();
+    set({
+      ambientNotifications: withAmbientNotifications(
+        ambientEnabledIds,
+        ambientCountRange,
+        settings.lastUnlockMinutesAgo
+      ),
     });
   },
 }));

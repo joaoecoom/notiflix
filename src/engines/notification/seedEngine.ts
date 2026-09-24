@@ -5,6 +5,7 @@ import {
 } from '../simulation/simulationEngine';
 import { buildPlatformNotificationCopy } from '../platform/notificationCopy';
 import { getPlatform, pickRandomPlatformId, resolvePlatformId, PLATFORM_IDS } from '../platform';
+import { MIN_EXISTING_AGE_MINUTES } from './ambientApps';
 import type {
   NotificationRecord,
   SeedBulkGeneratorConfig,
@@ -16,8 +17,8 @@ export function createDefaultSeedTimeline(): SeedEntry[] {
   return [
     {
       id: uuidv4(),
-      offsetValue: 1,
-      offsetUnit: 'hours',
+      offsetValue: 38,
+      offsetUnit: 'minutes',
       clockHour: 0,
       clockMinute: 0,
       currency: 'EUR',
@@ -26,8 +27,8 @@ export function createDefaultSeedTimeline(): SeedEntry[] {
     },
     {
       id: uuidv4(),
-      offsetValue: 1,
-      offsetUnit: 'hours',
+      offsetValue: 80,
+      offsetUnit: 'minutes',
       clockHour: 0,
       clockMinute: 0,
       currency: 'BRL',
@@ -36,7 +37,7 @@ export function createDefaultSeedTimeline(): SeedEntry[] {
     },
     {
       id: uuidv4(),
-      offsetValue: 0,
+      offsetValue: 12,
       offsetUnit: 'minutes',
       clockHour: 0,
       clockMinute: 0,
@@ -125,9 +126,14 @@ export function generateBulkSeedTimeline(config: SeedBulkGeneratorConfig): SeedE
   for (let i = 0; i < config.quantity; i++) {
     const currency = pickCurrencyByDistribution(config.distribution, config.currencies);
     const amount = generateRandomAmount(config.minAmount, config.maxAmount);
+    const minOffset =
+      config.offsetUnit === 'minutes'
+        ? Math.max(MIN_EXISTING_AGE_MINUTES, config.minOffsetValue)
+        : config.minOffsetValue;
+    const maxOffset = Math.max(minOffset, config.maxOffsetValue);
+    const skew = config.offsetUnit === 'days' ? 1 : 1.6;
     const offsetValue =
-      config.minOffsetValue +
-      Math.floor(Math.random() * (config.maxOffsetValue - config.minOffsetValue + 1));
+      minOffset + Math.round((maxOffset - minOffset) * Math.random() ** skew);
 
     const timestamp = resolveBulkSeedTimestamp(offsetValue, config.offsetUnit, now);
     const date = new Date(timestamp);
@@ -140,7 +146,7 @@ export function generateBulkSeedTimeline(config: SeedBulkGeneratorConfig): SeedE
     entries.push({
       id: uuidv4(),
       offsetValue,
-      offsetUnit: config.offsetUnit === 'days' ? 'days' : 'hours',
+      offsetUnit: config.offsetUnit,
       clockHour: config.offsetUnit === 'days' ? date.getHours() : 0,
       clockMinute: config.offsetUnit === 'days' ? date.getMinutes() : 0,
       currency,
@@ -157,9 +163,13 @@ export function generateBulkSeedTimeline(config: SeedBulkGeneratorConfig): SeedE
 
 function resolveBulkSeedTimestamp(
   offsetValue: number,
-  unit: 'hours' | 'days',
+  unit: 'minutes' | 'hours' | 'days',
   now: number
 ): number {
+  if (unit === 'minutes') {
+    return now - offsetValue * 60_000;
+  }
+
   if (unit === 'hours') {
     return now - offsetValue * 3_600_000;
   }
@@ -179,8 +189,8 @@ export function createEmptySeedEntry(platformId = PLATFORM_IDS.stripe): SeedEntr
   const platform = getPlatform(platformId);
   return {
     id: uuidv4(),
-    offsetValue: 1,
-    offsetUnit: 'hours' as SeedTimeUnit,
+    offsetValue: 15,
+    offsetUnit: 'minutes' as SeedTimeUnit,
     clockHour: 0,
     clockMinute: 0,
     currency: platform.defaultCurrency,

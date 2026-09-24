@@ -41,8 +41,34 @@ const BUILTIN_PLATFORMS: PlatformDefinition[] = [
   },
 ];
 
+function ambientApp(id: string, name: string, icon: string): PlatformDefinition {
+  return {
+    id,
+    name,
+    kind: 'builtin',
+    iconSrc: `/platforms/${icon}.png`,
+    messageTemplate: '',
+    notificationLayout: 'lockscreen',
+    defaultCurrency: 'EUR',
+    hasMobileDashboard: false,
+  };
+}
+
+/** Non-sales apps that only add realism to the lock screen */
+const AMBIENT_APPS: PlatformDefinition[] = [
+  ambientApp('youtube', 'YouTube', 'youtube'),
+  ambientApp('instagram', 'Instagram', 'instagram'),
+  ambientApp('activobank', 'ActivoBank', 'activobank'),
+  ambientApp('gmail', 'Gmail', 'gmail'),
+  ambientApp('phone', 'Telefone', 'phone'),
+];
+
 export function getBuiltinPlatforms(): PlatformDefinition[] {
   return BUILTIN_PLATFORMS;
+}
+
+export function getAmbientApps(): PlatformDefinition[] {
+  return AMBIENT_APPS;
 }
 
 export function getDefaultEnabledPlatformIds(): string[] {
@@ -69,6 +95,7 @@ export function getPlatform(
 ): PlatformDefinition {
   const found =
     BUILTIN_PLATFORMS.find((p) => p.id === platformId) ??
+    AMBIENT_APPS.find((p) => p.id === platformId) ??
     customPlatforms.find((p) => p.id === platformId);
   if (found) return found;
   return {

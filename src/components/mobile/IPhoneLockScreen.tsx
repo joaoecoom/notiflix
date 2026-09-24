@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { NotificationRecord } from '../../engines/simulation/types';
 import { useSimulationStore } from '../../store/simulationStore';
 import {
+  countLockScreenNotifications,
   getLockScreenNotifications,
   groupNotificationsByPlatform,
 } from '../../engines/notification';
@@ -86,15 +87,26 @@ export function IPhoneLockScreen() {
   const notificationRetentionDays = useSimulationStore(
     (s) => s.settings.notificationRetentionDays
   );
+  const lastUnlockMinutesAgo = useSimulationStore((s) => s.settings.lastUnlockMinutesAgo);
+  const maxLockScreenNotifications = useSimulationStore(
+    (s) => s.settings.maxLockScreenNotifications
+  );
+  const ambientNotifications = useSimulationStore((s) => s.ambientNotifications);
   const enabledPlatformIds = useSimulationStore((s) => s.enabledPlatformIds);
   const customPlatforms = useSimulationStore((s) => s.customPlatforms);
   const allVisible = getLockScreenNotifications(
     liveNotifications,
     seedNotifications,
-    notificationRetentionDays,
-    enabledPlatformIds,
-    now.getTime()
+    ambientNotifications,
+    {
+      retentionDays: notificationRetentionDays,
+      lastUnlockMinutesAgo,
+      maxNotifications: maxLockScreenNotifications,
+      enabledPlatformIds,
+      now: now.getTime(),
+    }
   );
+  const totalCount = countLockScreenNotifications(allVisible);
   const stackVisible =
     topBanner && !bannerExiting
       ? allVisible.filter((n) => n.id !== topBanner.id)
@@ -183,7 +195,7 @@ export function IPhoneLockScreen() {
                 <IOSNotification
                   notification={stackVisible[0]}
                   variant="lockscreen"
-                  badge={allVisible.length > 1 ? allVisible.length : undefined}
+                  badge={totalCount > 1 ? totalCount : undefined}
                   animating={false}
                   onDismiss={() => handleDismiss(stackVisible[0].id, stackVisible[0].isSeed)}
                 />
@@ -192,6 +204,17 @@ export function IPhoneLockScreen() {
               platformGroups.map((group, groupIndex) => {
                 const count = group.items.length;
                 const isOpen = openGroupId === group.platformId;
+                const summary = group.items[0].summaryCount;
+
+                if (summary != null) {
+                  return (
+                    <div key={group.platformId} className={styles.collapsedStack}>
+                      {summary > 2 && <div className={styles.stackLayer2} />}
+                      {summary > 1 && <div className={styles.stackLayer1} />}
+                      <IOSNotification notification={group.items[0]} variant="lockscreen" animating={false} />
+                    </div>
+                  );
+                }
 
                 if (!isOpen && count > 1) {
                   return (

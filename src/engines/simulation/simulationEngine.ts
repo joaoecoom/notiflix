@@ -233,12 +233,10 @@ export function formatNotificationTimestamp(timestamp: number, now: number): str
   const diffMin = Math.floor(diffMs / 60000);
 
   if (diffMin < 1) return 'agora';
-  if (diffMin < 60) return diffMin === 1 ? 'há 1 min' : `há ${diffMin} min`;
+  if (diffMin < 60) return `há ${diffMin}m`;
 
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) {
-    return diffHours === 1 ? 'há 1h' : `há ${diffHours}h`;
-  }
+  if (diffHours < 24) return `há ${diffHours}h`;
 
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays === 1) {

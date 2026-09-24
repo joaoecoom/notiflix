@@ -99,6 +99,9 @@ export interface SimulationSettings {
   playbackSpeed: number;
   /** iOS auto-clears Notification Center after this many days (7 classic, 3 on iOS 18.1+) */
   notificationRetentionDays: number;
+  /** Lock screen only shows what arrived since the phone was last unlocked */
+  lastUnlockMinutesAgo: number;
+  maxLockScreenNotifications: number;
 }
 
 export interface SimulationScenario {
@@ -130,8 +133,13 @@ export interface SeedBulkGeneratorConfig {
   maxAmount: number;
   minOffsetValue: number;
   maxOffsetValue: number;
-  offsetUnit: 'hours' | 'days';
+  offsetUnit: 'minutes' | 'hours' | 'days';
   distribution: CurrencyDistribution;
+}
+
+export interface CountRange {
+  min: number;
+  max: number;
 }
 
 export interface SimulationState {
@@ -150,6 +158,9 @@ export interface SimulationState {
   enabledPlatformIds: string[];
   customPlatforms: PlatformDefinition[];
   seedNotifications: NotificationRecord[];
+  ambientEnabledIds: string[];
+  ambientCountRange: CountRange;
+  ambientNotifications: NotificationRecord[];
   selectedCurrencyFilter: CurrencyCode | 'all';
 }
 
@@ -167,6 +178,8 @@ export interface NotificationRecord {
   status: 'active' | 'dismissed';
   eventId: string;
   isSeed?: boolean;
+  /** Collapsed "N Notificações" card for non-sales apps */
+  summaryCount?: number;
 }
 
 export const DEFAULT_DISTRIBUTION: CurrencyDistribution = {
@@ -183,6 +196,8 @@ export const DEFAULT_SETTINGS: SimulationSettings = {
   intensity: 'NORMAL',
   playbackSpeed: 1,
   notificationRetentionDays: IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
+  lastUnlockMinutesAgo: 120,
+  maxLockScreenNotifications: 30,
 };
 
 export function createEmptyMetrics(): SimulationMetrics {

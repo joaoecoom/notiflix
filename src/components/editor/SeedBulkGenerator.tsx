@@ -5,19 +5,27 @@ import { DEFAULT_DISTRIBUTION } from '../../engines/simulation/types';
 import { PLATFORM_IDS } from '../../engines/platform';
 import styles from './BulkGenerator.module.css';
 
+type OffsetUnit = 'minutes' | 'hours' | 'days';
+
+const UNIT_MINUTES: Record<OffsetUnit, number> = { minutes: 1, hours: 60, days: 1440 };
+const UNIT_LABEL: Record<OffsetUnit, string> = { minutes: 'min', hours: 'horas', days: 'dias' };
+
 export function SeedBulkGeneratorPanel() {
   const generateBulkSeed = useSimulationStore((s) => s.generateBulkSeed);
-  const retentionDays = useSimulationStore((s) => s.settings.notificationRetentionDays);
+  const lastUnlockMinutesAgo = useSimulationStore((s) => s.settings.lastUnlockMinutesAgo);
   const enabledPlatformIds = useSimulationStore((s) => s.enabledPlatformIds);
 
   const [quantity, setQuantity] = useState(5);
   const [currencies, setCurrencies] = useState<CurrencyCode[]>(['EUR', 'USD', 'BRL']);
   const [minAmount, setMinAmount] = useState(9);
   const [maxAmount, setMaxAmount] = useState(120);
-  const [minOffset, setMinOffset] = useState(1);
-  const [maxOffset, setMaxOffset] = useState(Math.min(3, retentionDays));
-  const [offsetUnit, setOffsetUnit] = useState<'hours' | 'days'>('days');
+  const [minOffset, setMinOffset] = useState(5);
+  const [maxOffset, setMaxOffset] = useState(lastUnlockMinutesAgo);
+  const [offsetUnit, setOffsetUnit] = useState<OffsetUnit>('minutes');
   const [distribution, setDistribution] = useState(DEFAULT_DISTRIBUTION);
+
+  const unitMinutes = UNIT_MINUTES[offsetUnit];
+  const maxAllowed = Math.max(1, Math.floor(lastUnlockMinutesAgo / unitMinutes));
 
   const toggleCurrency = (c: CurrencyCode) => {
     setCurrencies((prev) =>
@@ -27,10 +35,7 @@ export function SeedBulkGeneratorPanel() {
 
   const handleGenerate = () => {
     if (currencies.length === 0) return;
-    const cappedMax =
-      offsetUnit === 'days'
-        ? Math.min(maxOffset, retentionDays)
-        : Math.min(maxOffset, retentionDays * 24);
+    const cappedMax = Math.min(maxOffset, maxAllowed);
     generateBulkSeed({
       quantity,
       platformId: PLATFORM_IDS.stripe,
@@ -38,8 +43,8 @@ export function SeedBulkGeneratorPanel() {
       currencies,
       minAmount,
       maxAmount,
-      minOffsetValue: minOffset,
-      maxOffsetValue: Math.max(minOffset, cappedMax),
+      minOffsetValue: Math.min(minOffset, cappedMax),
+      maxOffsetValue: Math.max(Math.min(minOffset, cappedMax), cappedMax),
       offsetUnit,
       distribution,
     });
@@ -49,7 +54,7 @@ export function SeedBulkGeneratorPanel() {
     <div className={styles.container}>
       <h3 className={styles.title}>Bulk — notificações existentes</h3>
       <p className={styles.subtitle}>
-        Gera várias no passado (máx. {retentionDays} dias — limite de retenção do iOS)
+        Gera várias no passado, dentro do último desbloqueio (há {lastUnlockMinutesAgo} min)
       </p>
 
       <div className={styles.field}>
@@ -110,8 +115,14 @@ export function SeedBulkGeneratorPanel() {
         <label>Quando (passado)</label>
         <select
           value={offsetUnit}
-          onChange={(e) => setOffsetUnit(e.target.value as 'hours' | 'days')}
+          onChange={(e) => {
+            const unit = e.target.value as OffsetUnit;
+            setOffsetUnit(unit);
+            setMinOffset(unit === 'minutes' ? 5 : 1);
+            setMaxOffset(Math.max(1, Math.floor(lastUnlockMinutesAgo / UNIT_MINUTES[unit])));
+          }}
         >
+          <option value="minutes">Minutos atrás</option>
           <option value="hours">Horas atrás</option>
           <option value="days">Dias atrás</option>
         </select>
@@ -119,21 +130,23 @@ export function SeedBulkGeneratorPanel() {
 
       <div className={styles.row}>
         <div className={styles.field}>
-          <label>Mín. {offsetUnit === 'days' ? 'dias' : 'horas'}</label>
+          <label>Mín. {UNIT_LABEL[offsetUnit]}</label>
           <input
             type="number"
             value={minOffset}
-            min={1}
+            min={offsetUnit === 'minutes' ? 3 : 1}
+            max={maxAllowed}
             onChange={(e) => setMinOffset(parseInt(e.target.value) || 1)}
           />
         </div>
         <div className={styles.field}>
-          <label>Máx. {offsetUnit === 'days' ? 'dias' : 'horas'}</label>
+          <label>Máx. {UNIT_LABEL[offsetUnit]}</label>
           <input
             type="number"
             value={maxOffset}
             min={1}
-            onChange={(e) => setMaxOffset(parseInt(e.target.value) || 1)}
+            max={maxAllowed}
+            onChange={(e) => setMaxOffset(Math.min(maxAllowed, parseInt(e.target.value) || 1))}
           />
         </div>
       </div>
