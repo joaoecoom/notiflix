@@ -137,6 +137,8 @@ export function IPhoneLockScreen() {
         </div>
       </div>
 
+      <div className={styles.subject} aria-hidden />
+
       <div className={styles.contentRegion}>
         {stackVisible.length > 0 && (
           <div className={styles.notifCenter}>

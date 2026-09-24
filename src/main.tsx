@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/antonio';
 import './styles/globals.css';
 import App from './App';
 
