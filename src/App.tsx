@@ -1,7 +1,5 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { MobileCanvas } from './components/mobile/MobileCanvas';
-import { BottomNav } from './components/mobile/BottomNav';
-import { HomeIndicator } from './components/mobile/HomeIndicator';
 import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
 import { PlatformHub } from './components/hub/PlatformHub';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
@@ -10,7 +8,7 @@ import { TimelineEditor } from './components/editor/TimelineEditor';
 import { BulkGeneratorPanel } from './components/editor/BulkGenerator';
 import { SeedTimelineEditor } from './components/editor/SeedTimelineEditor';
 import { SeedBulkGeneratorPanel } from './components/editor/SeedBulkGenerator';
-import { StripeTemplate } from './templates/stripe/StripeTemplate';
+import { getAppTemplate } from './templates/registry';
 import { useSimulationStore } from './store/simulationStore';
 import styles from './App.module.css';
 
@@ -20,6 +18,8 @@ function App() {
   const [settingsFabVisible, setSettingsFabVisible] = useState(true);
 
   const previewScreen = useSimulationStore((s) => s.previewScreen);
+  const activeAppId = useSimulationStore((s) => s.activeAppId);
+  const appTemplate = getAppTemplate(activeAppId);
 
   const handleSimulationStart = () => {
     setMobilePanelOpen(false);
@@ -68,16 +68,10 @@ function App() {
       </aside>
 
       <main className={styles.preview} onDoubleClick={handlePreviewDoubleClick}>
-        <MobileCanvas showFrame={previewScreen === 'stripe'}>
+        <MobileCanvas showFrame={previewScreen === 'app' && appTemplate.framed}>
           {previewScreen === 'hub' && <PlatformHub />}
           {previewScreen === 'iphone' && <IPhoneLockScreen />}
-          {previewScreen === 'stripe' && (
-            <>
-              <StripeTemplate />
-              <BottomNav />
-              <HomeIndicator />
-            </>
-          )}
+          {previewScreen === 'app' && <Fragment key={activeAppId}>{appTemplate.render()}</Fragment>}
         </MobileCanvas>
 
         <button

@@ -1,6 +1,7 @@
 import { getBuiltinPlatforms, PLATFORM_IDS } from '../../engines/platform';
 import { useSimulationStore } from '../../store/simulationStore';
 import { PlatformIcon } from '../notifications/PlatformIcon';
+import { hasAppTemplate } from '../../templates/registry';
 import styles from './PlatformHub.module.css';
 
 export function PlatformHub() {
@@ -8,6 +9,7 @@ export function PlatformHub() {
   const togglePlatform = useSimulationStore((s) => s.togglePlatform);
   const setEnabledPlatforms = useSimulationStore((s) => s.setEnabledPlatforms);
   const setPreviewScreen = useSimulationStore((s) => s.setPreviewScreen);
+  const openApp = useSimulationStore((s) => s.openApp);
 
   const platforms = getBuiltinPlatforms();
   const activeCount = enabledPlatformIds.length;
@@ -56,11 +58,18 @@ export function PlatformHub() {
               <div className={styles.cardInfo}>
                 <div className={styles.cardName}>{platform.name}</div>
                 <div className={styles.cardMeta}>
-                  {platform.hasMobileDashboard
+                  {hasAppTemplate(platform.id)
                     ? 'App + notificações'
                     : 'Notificações no lock screen'}
                 </div>
               </div>
+              <button
+                type="button"
+                className={styles.openBtn}
+                onClick={() => openApp(platform.id)}
+              >
+                Abrir
+              </button>
               <button
                 type="button"
                 className={`${styles.toggle} ${on ? styles.toggleOn : ''}`}
@@ -75,15 +84,6 @@ export function PlatformHub() {
       </div>
 
       <div className={styles.actions}>
-        {enabledPlatformIds.includes(PLATFORM_IDS.stripe) && (
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setPreviewScreen('stripe')}
-          >
-            Abrir app Stripe
-          </button>
-        )}
         <button
           type="button"
           className={styles.primaryBtn}

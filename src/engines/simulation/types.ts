@@ -142,6 +142,15 @@ export interface CountRange {
   max: number;
 }
 
+/** Day totals an app already had before the notified sales (sales are added on top) */
+export interface AppBaseline {
+  revenue: number;
+  sales: number;
+  adSpend: number;
+  pendingSales: number;
+  refunds: number;
+}
+
 export interface SimulationState {
   scenario: SimulationScenario;
   settings: SimulationSettings;
@@ -155,6 +164,8 @@ export interface SimulationState {
   startTime: number | null;
   activeTab: 'home' | 'payments' | 'balances' | 'customers' | 'search';
   previewScreen: PreviewScreen;
+  activeAppId: string;
+  appBaselines: Record<string, AppBaseline>;
   enabledPlatformIds: string[];
   customPlatforms: PlatformDefinition[];
   seedNotifications: NotificationRecord[];

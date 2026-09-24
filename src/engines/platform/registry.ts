@@ -27,7 +27,7 @@ const BUILTIN_PLATFORMS: PlatformDefinition[] = [
     messageTemplate: 'Valor: {amount}',
     notificationLayout: 'lockscreen',
     defaultCurrency: 'BRL',
-    hasMobileDashboard: false,
+    hasMobileDashboard: true,
   },
   {
     id: PLATFORM_IDS.hotmart,

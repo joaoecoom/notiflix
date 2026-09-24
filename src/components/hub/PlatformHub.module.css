@@ -60,6 +60,16 @@
   margin-top: 2px;
 }
 
+.openBtn {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--accent-purple);
+  flex-shrink: 0;
+}
+
 .toggle {
   width: 51px;
   height: 31px;

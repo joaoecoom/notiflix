@@ -16,4 +16,4 @@ export interface PlatformDefinition {
   hasMobileDashboard: boolean;
 }
 
-export type PreviewScreen = 'hub' | 'stripe' | 'iphone';
+export type PreviewScreen = 'hub' | 'app' | 'iphone';

@@ -1,0 +1,75 @@
+.template {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0d0d11;
+  color: #f4f4f6;
+  font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@media (min-width: 431px) {
+  .template {
+    padding-top: 54px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #24242c;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.content {
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 18px;
+  border-radius: 14px;
+  background: #16161c;
+  border: 1px solid #26262e;
+}
+
+.label {
+  font-size: 13px;
+  color: #9a9aa6;
+}
+
+.value {
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sub {
+  font-size: 13px;
+  color: #c4c4ce;
+}
+
+.note {
+  margin: 0;
+  font-size: 12px;
+  color: #6c6c78;
+  text-align: center;
+}

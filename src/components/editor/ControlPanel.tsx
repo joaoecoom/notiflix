@@ -1,5 +1,9 @@
+import { useState } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import type { CurrencyCode } from '../../engines/currency';
+import type { AppBaseline } from '../../engines/simulation/types';
+import { EMPTY_BASELINE } from '../../engines/apps';
+import { hasAppTemplate } from '../../templates/registry';
 import {
   IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
   IOS_NOTIFICATION_RETENTION_DAYS_IOS18,
@@ -12,8 +16,15 @@ import fieldStyles from './BulkGenerator.module.css';
 
 const SCREENS: { id: PreviewScreen; label: string; desc: string }[] = [
   { id: 'hub', label: 'Hub', desc: 'Escolher plataformas' },
-  { id: 'stripe', label: 'App Stripe', desc: 'Dashboard com valores ao vivo' },
   { id: 'iphone', label: 'iPhone Lock Screen', desc: 'Ecrã bloqueado + notificações' },
+];
+
+const BASELINE_FIELDS: { key: keyof AppBaseline; label: string; integer?: boolean }[] = [
+  { key: 'revenue', label: 'Faturamento (R$)' },
+  { key: 'sales', label: 'Vendas', integer: true },
+  { key: 'adSpend', label: 'Gastos anúncios (R$)' },
+  { key: 'pendingSales', label: 'Pendentes', integer: true },
+  { key: 'refunds', label: 'Reembolsos (R$)' },
 ];
 
 interface ControlPanelProps {
@@ -31,6 +42,10 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
   const stopSimulation = useSimulationStore((s) => s.stopSimulation);
   const resetSimulation = useSimulationStore((s) => s.resetSimulation);
   const setPreviewScreen = useSimulationStore((s) => s.setPreviewScreen);
+  const activeAppId = useSimulationStore((s) => s.activeAppId);
+  const openApp = useSimulationStore((s) => s.openApp);
+  const appBaselines = useSimulationStore((s) => s.appBaselines);
+  const setAppBaseline = useSimulationStore((s) => s.setAppBaseline);
   const togglePlatform = useSimulationStore((s) => s.togglePlatform);
   const setCurrencyFilter = useSimulationStore((s) => s.setCurrencyFilter);
   const notificationRetentionDays = useSimulationStore(
@@ -51,6 +66,12 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
 
   const platforms = getBuiltinPlatforms();
   const ambientApps = getAmbientApps();
+  const baselinePlatforms = platforms.filter((p) => p.id !== 'stripe');
+  const [pickedBaselineAppId, setBaselineAppId] = useState<string | null>(null);
+  const baselineAppId =
+    pickedBaselineAppId ??
+    (activeAppId !== 'stripe' ? activeAppId : baselinePlatforms[0]?.id ?? 'utmify');
+  const baseline = appBaselines[baselineAppId] ?? EMPTY_BASELINE;
 
   const formatElapsed = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -123,6 +144,55 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
               <span className={styles.screenLabel}>{label}</span>
               <span className={styles.screenDesc}>{desc}</span>
             </button>
+          ))}
+          {platforms.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={`${styles.screenBtn} ${previewScreen === 'app' && activeAppId === p.id ? styles.active : ''}`}
+              onClick={() => openApp(p.id)}
+            >
+              <span className={styles.screenLabel}>App {p.name}</span>
+              <span className={styles.screenDesc}>
+                {hasAppTemplate(p.id) ? 'Dashboard com vendas ao vivo' : 'Total de vendas (ecrã provisório)'}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.subheading}>Valores do dia nas apps</h3>
+        <p className={styles.hint}>
+          O que a app já tinha hoje antes das notificações. Cada venda notificada soma-se por cima.
+        </p>
+        <div className={styles.platformToggles}>
+          {baselinePlatforms.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={`${styles.filterBtn} ${baselineAppId === p.id ? styles.active : ''}`}
+              onClick={() => setBaselineAppId(p.id)}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        <div className={fieldStyles.row}>
+          {BASELINE_FIELDS.map(({ key, label, integer }) => (
+            <div key={key} className={fieldStyles.field}>
+              <label>{label}</label>
+              <input
+                type="number"
+                min={0}
+                step={integer ? 1 : 0.01}
+                value={baseline[key]}
+                onChange={(e) => {
+                  const parsed = integer ? parseInt(e.target.value) : parseFloat(e.target.value);
+                  setAppBaseline(baselineAppId, { [key]: Math.max(0, parsed || 0) });
+                }}
+              />
+            </div>
           ))}
         </div>
       </div>

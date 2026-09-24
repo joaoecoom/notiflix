@@ -110,6 +110,12 @@
   line-height: 1;
 }
 
+.timeLabel {
+  left: 50px;
+  font-size: 16.5px;
+  letter-spacing: -0.2px;
+}
+
 .signal {
   position: absolute;
   left: 279px;

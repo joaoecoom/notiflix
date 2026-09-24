@@ -9,7 +9,8 @@ import type {
   SeedEntry,
   SeedBulkGeneratorConfig,
 } from '../engines/simulation';
-import type { CountRange } from '../engines/simulation/types';
+import type { AppBaseline, CountRange } from '../engines/simulation/types';
+import { DEFAULT_APP_BASELINES, EMPTY_BASELINE } from '../engines/apps';
 import {
   createDefaultTimeline,
   timelineToEvents,
@@ -62,6 +63,8 @@ interface SimulationActions {
   dismissNotification: (id: string) => void;
   dismissAllNotifications: () => void;
   dismissSeedNotification: (id: string) => void;
+  openApp: (platformId: string) => void;
+  setAppBaseline: (platformId: string, updates: Partial<AppBaseline>) => void;
   toggleAmbientApp: (appId: string) => void;
   setAmbientCountRange: (range: CountRange) => void;
   regenerateAmbientNotifications: () => void;
@@ -98,6 +101,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   startTime: null,
   activeTab: 'home',
   previewScreen: 'hub',
+  activeAppId: 'stripe',
+  appBaselines: DEFAULT_APP_BASELINES,
   enabledPlatformIds: getDefaultEnabledPlatformIds(),
   customPlatforms: [],
   selectedCurrencyFilter: 'all',
@@ -352,6 +357,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       seedTimeline: get().seedTimeline.filter((e) => e.id !== id),
       seedNotifications: get().seedNotifications.filter((n) => n.id !== id),
       ambientNotifications: get().ambientNotifications.filter((n) => n.id !== id),
+    });
+  },
+
+  openApp: (platformId) => set({ previewScreen: 'app', activeAppId: platformId }),
+
+  setAppBaseline: (platformId, updates) => {
+    const current = get().appBaselines[platformId] ?? EMPTY_BASELINE;
+    set({
+      appBaselines: { ...get().appBaselines, [platformId]: { ...current, ...updates } },
     });
   },
 

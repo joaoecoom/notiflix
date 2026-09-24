@@ -3,15 +3,27 @@ import styles from './IPhoneLockScreen.module.css';
 interface LockScreenStatusBarProps {
   carrier?: string;
   batteryLevel?: number;
+  /** Inside apps iOS shows the time on the left instead of the carrier */
+  showTime?: boolean;
+}
+
+function currentTime(): string {
+  const d = new Date();
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 export function LockScreenStatusBar({
   carrier = 'MEO',
   batteryLevel = 0.54,
+  showTime = false,
 }: LockScreenStatusBarProps) {
   return (
     <div className={styles.statusBar} aria-hidden>
-      <span className={styles.carrier}>{carrier}</span>
+      {showTime ? (
+        <span className={`${styles.carrier} ${styles.timeLabel}`}>{currentTime()}</span>
+      ) : (
+        <span className={styles.carrier}>{carrier}</span>
+      )}
 
       <svg className={styles.signal} width="20" height="11" viewBox="0 0 24 13" fill="#fff">
         <rect x="0" y="1" width="4" height="5" rx="1" />
