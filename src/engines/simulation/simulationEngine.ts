@@ -16,11 +16,10 @@ import type {
 import { createEmptyMetrics } from './types';
 import {
   PLATFORM_IDS,
-  getPlatform,
   pickRandomPlatformId,
   resolvePlatformId,
 } from '../platform';
-import { formatPlatformMessage } from '../platform/messages';
+import { buildPlatformNotificationCopy } from '../platform/notificationCopy';
 
 const INTENSITY_MULTIPLIERS: Record<IntensityLevel, { min: number; max: number }> = {
   LOW: { min: 30, max: 180 },
@@ -43,10 +42,9 @@ export function createDefaultTimeline(): TimelineEntry[] {
 export function timelineToEvents(timeline: TimelineEntry[]): SimulationEvent[] {
   return timeline.map((entry) => {
     const platformId = resolvePlatformId(entry.platformId, entry.app);
-    const platform = getPlatform(platformId);
-    const message =
-      entry.message ??
-      formatPlatformMessage(platform.messageTemplate, entry.amount, entry.currency);
+    const copy = buildPlatformNotificationCopy(platformId, entry.amount, entry.currency, {
+      stableKey: entry.id,
+    });
     return {
       id: entry.id,
       type: entry.type,
@@ -55,9 +53,9 @@ export function timelineToEvents(timeline: TimelineEntry[]): SimulationEvent[] {
       timestamp: 0,
       offsetSeconds: entry.offsetSeconds,
       platformId,
-      app: platform.name,
-      title: platform.name,
-      message,
+      app: copy.app,
+      title: copy.title,
+      message: entry.message ?? copy.message,
       processed: false,
     };
   });
@@ -120,12 +118,19 @@ export function processEvent(
     newMetrics.chartData = [...newMetrics.chartData, chartPoint].slice(-100);
   }
 
+  const copy = buildPlatformNotificationCopy(
+    event.platformId,
+    event.amount,
+    event.currency,
+    { stableKey: event.id }
+  );
+
   const notification: NotificationRecord = {
     id: uuidv4(),
     platformId: event.platformId,
     app: event.app,
-    title: event.app,
-    message: event.message ?? buildSaleMessage(event.amount, event.currency),
+    title: event.title ?? copy.title,
+    message: event.message ?? copy.message,
     amount: event.amount,
     currency: event.currency,
     timestamp,
@@ -228,12 +233,11 @@ export function formatNotificationTimestamp(timestamp: number, now: number): str
   const diffMin = Math.floor(diffMs / 60000);
 
   if (diffMin < 1) return 'agora';
-  if (diffMin < 60) return `há ${diffMin} min`;
+  if (diffMin < 60) return diffMin === 1 ? 'há 1 min' : `há ${diffMin} min`;
 
   const diffHours = Math.floor(diffMin / 60);
   if (diffHours < 24) {
-    const date = new Date(timestamp);
-    return `Hoje, ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    return diffHours === 1 ? 'há 1h' : `há ${diffHours}h`;
   }
 
   const diffDays = Math.floor(diffHours / 24);

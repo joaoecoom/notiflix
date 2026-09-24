@@ -3,7 +3,7 @@ import {
   pickCurrencyByDistribution,
   generateRandomAmount,
 } from '../simulation/simulationEngine';
-import { formatPlatformMessage } from '../platform/messages';
+import { buildPlatformNotificationCopy } from '../platform/notificationCopy';
 import { getPlatform, pickRandomPlatformId, resolvePlatformId, PLATFORM_IDS } from '../platform';
 import type {
   NotificationRecord,
@@ -23,6 +23,26 @@ export function createDefaultSeedTimeline(): SeedEntry[] {
       currency: 'EUR',
       amount: 24,
       platformId: PLATFORM_IDS.stripe,
+    },
+    {
+      id: uuidv4(),
+      offsetValue: 1,
+      offsetUnit: 'hours',
+      clockHour: 0,
+      clockMinute: 0,
+      currency: 'BRL',
+      amount: 83.91,
+      platformId: PLATFORM_IDS.hotmart,
+    },
+    {
+      id: uuidv4(),
+      offsetValue: 0,
+      offsetUnit: 'minutes',
+      clockHour: 0,
+      clockMinute: 0,
+      currency: 'BRL',
+      amount: 500,
+      platformId: PLATFORM_IDS.utmify,
     },
   ];
 }
@@ -70,15 +90,16 @@ export function seedEntryToNotification(
 ): NotificationRecord {
   const timestamp = seedEntryToTimestamp(entry, now);
   const platformId = resolvePlatformId(entry.platformId, entry.app);
-  const platform = getPlatform(platformId);
-  const message = formatPlatformMessage(platform.messageTemplate, entry.amount, entry.currency);
+  const copy = buildPlatformNotificationCopy(platformId, entry.amount, entry.currency, {
+    stableKey: entry.id,
+  });
 
   return {
     id: entry.id,
     platformId,
-    app: platform.name,
-    title: platform.name,
-    message,
+    app: copy.app,
+    title: copy.title,
+    message: copy.message,
     amount: entry.amount,
     currency: entry.currency,
     timestamp,
