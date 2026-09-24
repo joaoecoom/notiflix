@@ -43,7 +43,7 @@ export function IOSNotification({
       <div className={styles.iconWrapper}>
         <PlatformIcon
           platformId={platformId}
-          size={variant === 'lockscreen' ? 40 : 38}
+          size={variant === 'lockscreen' ? 36 : 38}
         />
         {badge != null && badge > 1 && (
           <span className={styles.badge}>{badge}</span>

@@ -18,7 +18,7 @@
 }
 
 .lockscreen.expanded {
-  --clock-size: 27.5cqw;
+  --clock-size: 26cqw;
   --clock-scale-x: 1.38;
   --clock-scale-y: 1;
   --clock-lift: 5px;
@@ -31,6 +31,17 @@
   position: absolute;
   inset: 0;
   background: url('/wallpaper.png') center top / cover no-repeat;
+}
+
+.wallpaper {
+  transition:
+    filter 0.48s cubic-bezier(0.32, 0.72, 0, 1),
+    transform 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.expanded .wallpaper {
+  filter: blur(14px) brightness(0.42);
+  transform: scale(1.08);
 }
 
 /* Depth effect: subject cutout sits above the clock, below notifications */
@@ -231,8 +242,13 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.22));
   transition:
     font-size 0.48s cubic-bezier(0.32, 0.72, 0, 1),
+    font-weight 0.48s cubic-bezier(0.32, 0.72, 0, 1),
     transform 0.48s cubic-bezier(0.32, 0.72, 0, 1),
     margin-bottom 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.expanded .timeWrap {
+  font-weight: 420;
 }
 
 .timeFill,
@@ -275,7 +291,7 @@
 
 .expanded .contentRegion {
   justify-content: flex-start;
-  padding-top: 18px;
+  padding-top: 36px;
 }
 
 .spacer {
@@ -286,7 +302,7 @@
 /* ── Notification Center ── */
 .notifCenter {
   flex-shrink: 0;
-  padding: 0 16px 8px;
+  padding: 0 13px 8px;
   width: 100%;
   transform: translateY(0);
   transition:
@@ -307,15 +323,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 0 2px;
+  margin-bottom: 14px;
+  padding: 0 1px 0 9px;
 }
 
 .centerTitle {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 25px;
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -381,7 +397,7 @@
 .notifList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   max-height: none;
   overflow-y: visible;
   scrollbar-width: none;
@@ -409,7 +425,7 @@
 /* Collapsed stack — iOS layered cards */
 .collapsedStack {
   position: relative;
-  padding-bottom: 10px;
+  padding-bottom: 14px;
   cursor: pointer;
 }
 
@@ -419,29 +435,29 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: calc(100% - 10px);
+  height: calc(100% - 14px);
   border-radius: 22px;
-  background: rgba(44, 44, 46, 0.62);
+  background: rgba(30, 30, 32, 0.55);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
   pointer-events: none;
 }
 
 .stackLayer1 {
-  bottom: 4px;
-  left: 6px;
-  right: 6px;
+  bottom: 7px;
+  left: 8px;
+  right: 8px;
   z-index: 0;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .stackLayer2 {
-  bottom: 8px;
-  left: 12px;
-  right: 12px;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
   z-index: -1;
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 .stackLayer3 {
