@@ -4,6 +4,7 @@ export const PLATFORM_IDS = {
   stripe: 'stripe',
   utmify: 'utmify',
   hotmart: 'hotmart',
+  nubank: 'nubank',
 } as const;
 
 export type BuiltinPlatformId = (typeof PLATFORM_IDS)[keyof typeof PLATFORM_IDS];
@@ -35,6 +36,16 @@ const BUILTIN_PLATFORMS: PlatformDefinition[] = [
     kind: 'builtin',
     iconSrc: '/platforms/hotmart.png',
     messageTemplate: 'Sua comissão: {amount}',
+    notificationLayout: 'lockscreen',
+    defaultCurrency: 'BRL',
+    hasMobileDashboard: false,
+  },
+  {
+    id: PLATFORM_IDS.nubank,
+    name: 'Nubank',
+    kind: 'builtin',
+    iconSrc: '/platforms/nubank.png',
+    messageTemplate: 'Você recebeu um Pix de {amount}',
     notificationLayout: 'lockscreen',
     defaultCurrency: 'BRL',
     hasMobileDashboard: false,
@@ -81,11 +92,13 @@ export function resolvePlatformId(value?: string | null, legacyApp?: string): st
     if (lower === 'stripe') return PLATFORM_IDS.stripe;
     if (lower === 'utmify') return PLATFORM_IDS.utmify;
     if (lower === 'hotmart') return PLATFORM_IDS.hotmart;
+    if (lower === 'nubank') return PLATFORM_IDS.nubank;
     return value;
   }
   if (legacyApp?.toLowerCase() === 'stripe') return PLATFORM_IDS.stripe;
   if (legacyApp?.toLowerCase() === 'utmify') return PLATFORM_IDS.utmify;
   if (legacyApp?.toLowerCase() === 'hotmart') return PLATFORM_IDS.hotmart;
+  if (legacyApp?.toLowerCase() === 'nubank') return PLATFORM_IDS.nubank;
   return PLATFORM_IDS.stripe;
 }
 

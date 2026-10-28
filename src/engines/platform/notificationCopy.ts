@@ -56,6 +56,22 @@ export function buildPlatformNotificationCopy(
     };
   }
 
+  if (platformId === PLATFORM_IDS.nubank) {
+    const types = [
+      'Pix recebido',
+      'Transferência recebida',
+    ];
+    const type = stableKey
+      ? types[stableIndex(stableKey, types.length)]
+      : types[Math.floor(Math.random() * types.length)];
+    const brlAmount = formatBrl(amount);
+    return {
+      app: 'Nubank',
+      title: type,
+      message: `Você recebeu ${brlAmount}`,
+    };
+  }
+
   if (platformId === PLATFORM_IDS.utmify) {
     const statuses = ['Venda aprovada!', 'Venda pendente!'];
     const status = stableKey

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="44" fill="#8A05BE"/>
+  <g fill="#fff">
+    <!-- n: left vertical + arch going up and down into right vertical -->
+    <path d="
+      M52 145
+      V95
+      C52 72 70 55 90 55
+      C110 55 118 68 118 85
+      V145
+      H105
+      V88
+      C105 76 99 68 90 68
+      C79 68 65 78 65 95
+      V145
+      Z
+    "/>
+    <!-- u: left vertical going down into trough, rising to right vertical -->
+    <path d="
+      M88 55
+      V108
+      C88 122 96 132 110 132
+      C122 132 135 122 135 108
+      V55
+      H148
+      V112
+      C148 136 130 148 110 148
+      C90 148 82 135 82 115
+      V55
+      Z
+    "/>
+  </g>
+</svg>

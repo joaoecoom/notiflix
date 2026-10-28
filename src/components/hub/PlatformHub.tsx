@@ -47,6 +47,13 @@ export function PlatformHub() {
         >
           Utmify + Hotmart
         </button>
+        <button
+          type="button"
+          className={styles.presetBtn}
+          onClick={() => setEnabledPlatforms([PLATFORM_IDS.nubank])}
+        >
+          Só Nubank
+        </button>
       </div>
 
       <div className={styles.list}>
