@@ -1,0 +1,146 @@
+import { Fragment, useState } from 'react';
+import { MobileCanvas } from './components/mobile/MobileCanvas';
+import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
+import { PlatformHub } from './components/hub/PlatformHub';
+import { useSimulationLoop } from './hooks/useSimulationLoop';
+import { ControlPanel } from './components/editor/ControlPanel';
+import { TimelineEditor } from './components/editor/TimelineEditor';
+import { BulkGeneratorPanel } from './components/editor/BulkGenerator';
+import { SeedTimelineEditor } from './components/editor/SeedTimelineEditor';
+import { SeedBulkGeneratorPanel } from './components/editor/SeedBulkGenerator';
+import { getAppTemplate } from './templates/registry';
+import { useSimulationStore } from './store/simulationStore';
+import { useAuth } from './contexts/AuthContext';
+import styles from './App.module.css';
+
+export function SimulationApp() {
+  useSimulationLoop();
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [settingsFabVisible, setSettingsFabVisible] = useState(true);
+
+  const previewScreen = useSimulationStore((s) => s.previewScreen);
+  const activeAppId = useSimulationStore((s) => s.activeAppId);
+  const appTemplate = getAppTemplate(activeAppId);
+  const { permissions, signOut, profile } = useAuth();
+
+  const handleSimulationStart = () => {
+    setMobilePanelOpen(false);
+  };
+
+  const toggleSettingsFab = () => {
+    setSettingsFabVisible((visible) => {
+      if (visible) setMobilePanelOpen(false);
+      return !visible;
+    });
+  };
+
+  const handlePreviewDoubleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+      return;
+    }
+    toggleSettingsFab();
+  };
+
+  return (
+    <div className={styles.app}>
+      <aside className={styles.sidebar}>
+        <header className={styles.sidebarHeader}>
+          <h1 className={styles.logo}>NotiFlix</h1>
+          <span className={styles.badge}>
+            {profile?.full_name || profile?.email || 'User'}
+          </span>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={signOut}
+            title="Sair"
+            style={{ marginLeft: 'auto', fontSize: 11 }}
+          >
+            Sair
+          </button>
+        </header>
+
+        <ControlPanel
+          onSimulationStart={handleSimulationStart}
+          permissions={permissions}
+        />
+
+        <div className={styles.divider} />
+
+        {permissions?.can_manual_notification && (
+          <>
+            <TimelineEditor />
+            <div className={styles.divider} />
+          </>
+        )}
+
+        {permissions?.can_auto_system && (
+          <>
+            <BulkGeneratorPanel />
+            <div className={styles.divider} />
+          </>
+        )}
+
+        {permissions?.can_manual_notification && (
+          <>
+            <SeedTimelineEditor />
+            <div className={styles.divider} />
+          </>
+        )}
+
+        {permissions?.can_auto_system && <SeedBulkGeneratorPanel />}
+      </aside>
+
+      <main className={styles.preview} onDoubleClick={handlePreviewDoubleClick}>
+        <MobileCanvas showFrame={previewScreen === 'app' && appTemplate.framed}>
+          {previewScreen === 'hub' && <PlatformHub />}
+          {previewScreen === 'iphone' && <IPhoneLockScreen />}
+          {previewScreen === 'app' && (
+            <Fragment key={activeAppId}>{appTemplate.render()}</Fragment>
+          )}
+        </MobileCanvas>
+
+        <button
+          type="button"
+          className={`${styles.mobileFab} ${settingsFabVisible ? '' : styles.mobileFabHidden}`}
+          onClick={() => setMobilePanelOpen(true)}
+          onDoubleClick={(e) => e.stopPropagation()}
+          aria-label="Controlos"
+          aria-hidden={!settingsFabVisible}
+          tabIndex={settingsFabVisible ? 0 : -1}
+        >
+          ⚙
+        </button>
+      </main>
+
+      {mobilePanelOpen && (
+        <div className={styles.mobileOverlay} onClick={() => setMobilePanelOpen(false)}>
+          <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.sheetHandle} />
+            <header className={styles.sidebarHeader}>
+              <h1 className={styles.logo}>NotiFlix</h1>
+              <button className={styles.closeBtn} onClick={() => setMobilePanelOpen(false)}>
+                ✕
+              </button>
+            </header>
+            <ControlPanel
+              onSimulationStart={handleSimulationStart}
+              permissions={permissions}
+            />
+            <div className={styles.divider} />
+            {permissions?.can_manual_notification && (
+              <>
+                <TimelineEditor />
+                <div className={styles.divider} />
+                <SeedTimelineEditor />
+                <div className={styles.divider} />
+              </>
+            )}
+            {permissions?.can_auto_system && <SeedBulkGeneratorPanel />}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

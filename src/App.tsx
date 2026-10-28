@@ -1,113 +1,87 @@
-import { Fragment, useState } from 'react';
-import { MobileCanvas } from './components/mobile/MobileCanvas';
-import { IPhoneLockScreen } from './components/mobile/IPhoneLockScreen';
-import { PlatformHub } from './components/hub/PlatformHub';
-import { useSimulationLoop } from './hooks/useSimulationLoop';
-import { ControlPanel } from './components/editor/ControlPanel';
-import { TimelineEditor } from './components/editor/TimelineEditor';
-import { BulkGeneratorPanel } from './components/editor/BulkGenerator';
-import { SeedTimelineEditor } from './components/editor/SeedTimelineEditor';
-import { SeedBulkGeneratorPanel } from './components/editor/SeedBulkGenerator';
-import { getAppTemplate } from './templates/registry';
-import { useSimulationStore } from './store/simulationStore';
-import styles from './App.module.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LoginPage } from './components/auth/LoginPage';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { SimulationApp } from './SimulationApp';
+import type { ReactNode } from 'react';
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  const { session, loading, configured } = useAuth();
+  if (!configured) return children;
+  if (loading) return <LoadingScreen />;
+  if (!session) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function RequireAdmin({ children }: { children: ReactNode }) {
+  const { session, loading, isAdmin, configured } = useAuth();
+  if (!configured) return children;
+  if (loading) return <LoadingScreen />;
+  if (!session) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/app" replace />;
+  return children;
+}
+
+function RootRedirect() {
+  const { session, loading, isAdmin, configured } = useAuth();
+  if (!configured) return <Navigate to="/app" replace />;
+  if (loading) return <LoadingScreen />;
+  if (!session) return <Navigate to="/login" replace />;
+  return <Navigate to={isAdmin ? '/admin' : '/app'} replace />;
+}
+
+function LoginGuard() {
+  const { session, loading, isAdmin, configured } = useAuth();
+  if (!configured) return <Navigate to="/app" replace />;
+  if (loading) return <LoadingScreen />;
+  if (session) return <Navigate to={isAdmin ? '/admin' : '/app'} replace />;
+  return <LoginPage />;
+}
+
+function LoadingScreen() {
+  return (
+    <div
+      style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-primary)',
+        color: 'var(--text-secondary)',
+        fontSize: 15,
+      }}
+    >
+      A carregar...
+    </div>
+  );
+}
 
 function App() {
-  useSimulationLoop();
-  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
-  const [settingsFabVisible, setSettingsFabVisible] = useState(true);
-
-  const previewScreen = useSimulationStore((s) => s.previewScreen);
-  const activeAppId = useSimulationStore((s) => s.activeAppId);
-  const appTemplate = getAppTemplate(activeAppId);
-
-  const handleSimulationStart = () => {
-    setMobilePanelOpen(false);
-  };
-
-  const toggleSettingsFab = () => {
-    setSettingsFabVisible((visible) => {
-      if (visible) setMobilePanelOpen(false);
-      return !visible;
-    });
-  };
-
-  const handlePreviewDoubleClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, input, select, textarea, [role="button"]')) {
-      return;
-    }
-    toggleSettingsFab();
-  };
-
   return (
-    <div className={styles.app}>
-      <aside className={styles.sidebar}>
-        <header className={styles.sidebarHeader}>
-          <h1 className={styles.logo}>NotiFlix</h1>
-          <span className={styles.badge}>Prototype</span>
-        </header>
-
-        <ControlPanel onSimulationStart={handleSimulationStart} />
-
-        <div className={styles.divider} />
-
-        <TimelineEditor />
-
-        <div className={styles.divider} />
-
-        <BulkGeneratorPanel />
-
-        <div className={styles.divider} />
-
-        <SeedTimelineEditor />
-
-        <div className={styles.divider} />
-
-        <SeedBulkGeneratorPanel />
-      </aside>
-
-      <main className={styles.preview} onDoubleClick={handlePreviewDoubleClick}>
-        <MobileCanvas showFrame={previewScreen === 'app' && appTemplate.framed}>
-          {previewScreen === 'hub' && <PlatformHub />}
-          {previewScreen === 'iphone' && <IPhoneLockScreen />}
-          {previewScreen === 'app' && <Fragment key={activeAppId}>{appTemplate.render()}</Fragment>}
-        </MobileCanvas>
-
-        <button
-          type="button"
-          className={`${styles.mobileFab} ${settingsFabVisible ? '' : styles.mobileFabHidden}`}
-          onClick={() => setMobilePanelOpen(true)}
-          onDoubleClick={(e) => e.stopPropagation()}
-          aria-label="Controlos"
-          aria-hidden={!settingsFabVisible}
-          tabIndex={settingsFabVisible ? 0 : -1}
-        >
-          ⚙
-        </button>
-      </main>
-
-      {mobilePanelOpen && (
-        <div className={styles.mobileOverlay} onClick={() => setMobilePanelOpen(false)}>
-          <div className={styles.mobileSheet} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.sheetHandle} />
-            <header className={styles.sidebarHeader}>
-              <h1 className={styles.logo}>NotiFlix</h1>
-              <button className={styles.closeBtn} onClick={() => setMobilePanelOpen(false)}>
-                ✕
-              </button>
-            </header>
-            <ControlPanel onSimulationStart={handleSimulationStart} />
-            <div className={styles.divider} />
-            <TimelineEditor />
-            <div className={styles.divider} />
-            <SeedTimelineEditor />
-            <div className={styles.divider} />
-            <SeedBulkGeneratorPanel />
-          </div>
-        </div>
-      )}
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginGuard />} />
+          <Route
+            path="/admin/*"
+            element={
+              <RequireAdmin>
+                <AdminLayout />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/app"
+            element={
+              <RequireAuth>
+                <SimulationApp />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<RootRedirect />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

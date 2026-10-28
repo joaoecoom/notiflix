@@ -29,9 +29,14 @@ const BASELINE_FIELDS: { key: keyof AppBaseline; label: string; integer?: boolea
 
 interface ControlPanelProps {
   onSimulationStart?: () => void;
+  permissions?: {
+    can_manual_notification: boolean;
+    can_auto_system: boolean;
+    allowed_platforms: string[];
+  } | null;
 }
 
-export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
+export function ControlPanel({ onSimulationStart, permissions }: ControlPanelProps) {
   const isRunning = useSimulationStore((s) => s.isRunning);
   const elapsedTime = useSimulationStore((s) => s.elapsedTime);
   const previewScreen = useSimulationStore((s) => s.previewScreen);
@@ -64,7 +69,10 @@ export function ControlPanel({ onSimulationStart }: ControlPanelProps) {
     (s) => s.regenerateAmbientNotifications
   );
 
-  const platforms = getBuiltinPlatforms();
+  const allPlatforms = getBuiltinPlatforms();
+  const platforms = permissions?.allowed_platforms?.length
+    ? allPlatforms.filter((p) => permissions.allowed_platforms.includes(p.id))
+    : allPlatforms;
   const ambientApps = getAmbientApps();
   const baselinePlatforms = platforms.filter((p) => p.id !== 'stripe');
   const [pickedBaselineAppId, setBaselineAppId] = useState<string | null>(null);

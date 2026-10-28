@@ -2,6 +2,7 @@ import { getBuiltinPlatforms, PLATFORM_IDS } from '../../engines/platform';
 import { useSimulationStore } from '../../store/simulationStore';
 import { PlatformIcon } from '../notifications/PlatformIcon';
 import { hasAppTemplate } from '../../templates/registry';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './PlatformHub.module.css';
 
 export function PlatformHub() {
@@ -10,8 +11,12 @@ export function PlatformHub() {
   const setEnabledPlatforms = useSimulationStore((s) => s.setEnabledPlatforms);
   const setPreviewScreen = useSimulationStore((s) => s.setPreviewScreen);
   const openApp = useSimulationStore((s) => s.openApp);
+  const { permissions } = useAuth();
 
-  const platforms = getBuiltinPlatforms();
+  const allPlatforms = getBuiltinPlatforms();
+  const platforms = permissions?.allowed_platforms?.length
+    ? allPlatforms.filter((p) => permissions.allowed_platforms.includes(p.id))
+    : allPlatforms;
   const activeCount = enabledPlatformIds.length;
 
   return (
@@ -27,33 +32,21 @@ export function PlatformHub() {
         <button
           type="button"
           className={styles.presetBtn}
-          onClick={() => setEnabledPlatforms(Object.values(PLATFORM_IDS))}
+          onClick={() => setEnabledPlatforms(platforms.map((p) => p.id))}
         >
           Todas
         </button>
-        <button
-          type="button"
-          className={styles.presetBtn}
-          onClick={() => setEnabledPlatforms([PLATFORM_IDS.stripe])}
-        >
-          Só Stripe
-        </button>
-        <button
-          type="button"
-          className={styles.presetBtn}
-          onClick={() =>
-            setEnabledPlatforms([PLATFORM_IDS.utmify, PLATFORM_IDS.hotmart])
-          }
-        >
-          Utmify + Hotmart
-        </button>
-        <button
-          type="button"
-          className={styles.presetBtn}
-          onClick={() => setEnabledPlatforms([PLATFORM_IDS.nubank])}
-        >
-          Só Nubank
-        </button>
+        {platforms.length > 1 &&
+          platforms.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={styles.presetBtn}
+              onClick={() => setEnabledPlatforms([p.id])}
+            >
+              Só {p.name}
+            </button>
+          ))}
       </div>
 
       <div className={styles.list}>
