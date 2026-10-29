@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import type { Profile, UserPermissions as Perms } from '../../lib/supabase';
 import { getBuiltinPlatforms } from '../../engines/platform';
 import styles from './AdminLayout.module.css';
@@ -12,6 +12,8 @@ export function UserPermissions() {
   const [perms, setPerms] = useState<Perms | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const platforms = getBuiltinPlatforms();
@@ -54,6 +56,23 @@ export function UserPermissions() {
 
     if (err) setError(err.message);
     setSaving(false);
+  }
+
+  async function deleteUser() {
+    if (!userId) return;
+    setDeleting(true);
+    setError(null);
+
+    const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+    if (delErr) {
+      setError(delErr.message);
+      setDeleting(false);
+      setConfirmDelete(false);
+      return;
+    }
+
+    navigate('/admin');
   }
 
   async function toggleActive() {
@@ -172,6 +191,39 @@ export function UserPermissions() {
           <button type="button" className={styles.dangerBtn} onClick={toggleActive}>
             {profile.is_active ? 'Desactivar utilizador' : 'Reactivar utilizador'}
           </button>
+        </div>
+
+        <div className={styles.statusToggle} style={{ marginTop: 12 }}>
+          {confirmDelete ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 13, color: '#ef4444' }}>Tens a certeza? Esta acção é irreversível.</span>
+              <button
+                type="button"
+                className={styles.dangerBtn}
+                style={{ background: '#dc2626' }}
+                disabled={deleting}
+                onClick={deleteUser}
+              >
+                {deleting ? 'A apagar...' : 'Sim, apagar'}
+              </button>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={styles.dangerBtn}
+              style={{ background: '#dc2626' }}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Apagar utilizador permanentemente
+            </button>
+          )}
         </div>
       </div>
     </>
