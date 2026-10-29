@@ -64,22 +64,21 @@ create trigger user_permissions_updated_at
 alter table public.profiles enable row level security;
 alter table public.user_permissions enable row level security;
 
+-- Helper to check admin without triggering RLS recursion
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer stable;
+
 -- Admin can do everything
 create policy "admin_all_profiles" on public.profiles
-  for all using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  for all using (public.is_admin());
 
 create policy "admin_all_permissions" on public.user_permissions
-  for all using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  for all using (public.is_admin());
 
 -- Users can read their own profile
 create policy "user_read_own_profile" on public.profiles
