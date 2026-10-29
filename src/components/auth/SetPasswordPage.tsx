@@ -69,7 +69,7 @@ export function SetPasswordPage() {
       <div className={styles.card}>
         <div className={styles.logo}>
           <h1>NotiFlix</h1>
-          <p>{success ? 'Password definida!' : 'Define a tua password'}</p>
+          <p>{success ? 'Password definida!' : 'Cria a tua password de acesso'}</p>
         </div>
 
         {success ? (
@@ -78,10 +78,14 @@ export function SetPasswordPage() {
           </p>
         ) : (
           <form className={styles.form} onSubmit={handleSubmit}>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.5 }}>
+              Escolhe uma password segura. Esta será a tua password definitiva para aceder ao NotiFlix.
+            </p>
+
             {error && <div className={styles.error}>{error}</div>}
 
             <div className={styles.field}>
-              <label>Nova password</label>
+              <label>Password</label>
               <input
                 type="password"
                 value={password}
@@ -93,7 +97,7 @@ export function SetPasswordPage() {
             </div>
 
             <div className={styles.field}>
-              <label>Confirmar password</label>
+              <label>Confirma a password</label>
               <input
                 type="password"
                 value={confirm}
