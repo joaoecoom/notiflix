@@ -9,6 +9,12 @@ export const supabase: SupabaseClient = supabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
   : (null as unknown as SupabaseClient);
 
+const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+
+export const supabaseAdmin: SupabaseClient = supabaseConfigured && serviceRoleKey
+  ? createClient(supabaseUrl!, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } })
+  : (null as unknown as SupabaseClient);
+
 export interface Profile {
   id: string;
   email: string;

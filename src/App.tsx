@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginPage } from './components/auth/LoginPage';
+import { SetPasswordPage } from './components/auth/SetPasswordPage';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SimulationApp } from './SimulationApp';
 import type { ReactNode } from 'react';
@@ -62,6 +63,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginGuard />} />
+          <Route path="/set-password" element={<SetPasswordPage />} />
           <Route
             path="/admin/*"
             element={

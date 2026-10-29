@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { getBuiltinPlatforms } from '../../engines/platform';
 import styles from './AdminLayout.module.css';
 
@@ -11,7 +11,6 @@ interface CreateUserModalProps {
 export function CreateUserModal({ onClose, onCreated }: CreateUserModalProps) {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
-  const [password, setPassword] = useState('');
   const [canManual, setCanManual] = useState(true);
   const [canAuto, setCanAuto] = useState(true);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(() =>
@@ -33,16 +32,13 @@ export function CreateUserModal({ onClose, onCreated }: CreateUserModalProps) {
     setError(null);
     setBusy(true);
 
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, role: 'user' },
-      },
+    const { data, error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: fullName, role: 'user' },
+      redirectTo: `${window.location.origin}/set-password`,
     });
 
-    if (signUpErr) {
-      setError(signUpErr.message);
+    if (inviteErr) {
+      setError(inviteErr.message);
       setBusy(false);
       return;
     }
@@ -92,17 +88,9 @@ export function CreateUserModal({ onClose, onCreated }: CreateUserModalProps) {
             />
           </div>
 
-          <div className={styles.field}>
-            <label>Password temporária</label>
-            <input
-              type="text"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="mínimo 6 caracteres"
-            />
-          </div>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 8px' }}>
+            O utilizador recebe um email para definir a sua password.
+          </p>
 
           <div>
             <label className={styles.field}>
@@ -153,7 +141,7 @@ export function CreateUserModal({ onClose, onCreated }: CreateUserModalProps) {
               Cancelar
             </button>
             <button type="submit" className={styles.saveBtn} disabled={busy}>
-              {busy ? 'A criar...' : 'Criar utilizador'}
+              {busy ? 'A enviar convite...' : 'Convidar utilizador'}
             </button>
           </div>
         </form>
