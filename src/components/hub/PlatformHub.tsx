@@ -1,4 +1,4 @@
-import { getBuiltinPlatforms, PLATFORM_IDS } from '../../engines/platform';
+import { getBuiltinPlatforms } from '../../engines/platform';
 import { useSimulationStore } from '../../store/simulationStore';
 import { PlatformIcon } from '../notifications/PlatformIcon';
 import { hasAppTemplate } from '../../templates/registry';
