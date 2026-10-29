@@ -61,6 +61,8 @@ export function ControlPanel({ onSimulationStart, permissions }: ControlPanelPro
   const maxLockScreenNotifications = useSimulationStore(
     (s) => s.settings.maxLockScreenNotifications
   );
+  const wallpaperUrl = useSimulationStore((s) => s.settings.wallpaperUrl);
+  const wallpaperSubjectUrl = useSimulationStore((s) => s.settings.wallpaperSubjectUrl);
   const ambientEnabledIds = useSimulationStore((s) => s.ambientEnabledIds);
   const ambientCountRange = useSimulationStore((s) => s.ambientCountRange);
   const toggleAmbientApp = useSimulationStore((s) => s.toggleAmbientApp);
@@ -80,6 +82,22 @@ export function ControlPanel({ onSimulationStart, permissions }: ControlPanelPro
     pickedBaselineAppId ??
     (activeAppId !== 'stripe' ? activeAppId : baselinePlatforms[0]?.id ?? 'utmify');
   const baseline = appBaselines[baselineAppId] ?? EMPTY_BASELINE;
+
+  function handleWallpaperUpload(field: 'wallpaperUrl' | 'wallpaperSubjectUrl') {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        updateSettings({ [field]: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
 
   const formatElapsed = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -242,6 +260,85 @@ export function ControlPanel({ onSimulationStart, permissions }: ControlPanelPro
                 })
               }
             />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.subheading}>Wallpaper</h3>
+        <p className={styles.hint}>
+          Imagem de fundo do ecrã de bloqueio. Cada utilizador pode usar a sua.
+        </p>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
+            <div
+              style={{
+                width: 64,
+                height: 112,
+                borderRadius: 8,
+                overflow: 'hidden',
+                border: '1px solid var(--border)',
+                background: '#000',
+              }}
+            >
+              <img
+                src={wallpaperUrl}
+                alt="Wallpaper"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            <button
+              type="button"
+              className={styles.filterBtn}
+              onClick={() => handleWallpaperUpload('wallpaperUrl')}
+              style={{ fontSize: 11, padding: '4px 8px', whiteSpace: 'nowrap' }}
+            >
+              Alterar fundo
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
+            <div
+              style={{
+                width: 64,
+                height: 112,
+                borderRadius: 8,
+                overflow: 'hidden',
+                border: '1px solid var(--border)',
+                background: 'transparent',
+              }}
+            >
+              {wallpaperSubjectUrl ? (
+                <img
+                  src={wallpaperSubjectUrl}
+                  alt="Subject"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: 10 }}>
+                  Sem subject
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button
+                type="button"
+                className={styles.filterBtn}
+                onClick={() => handleWallpaperUpload('wallpaperSubjectUrl')}
+                style={{ fontSize: 11, padding: '4px 8px', whiteSpace: 'nowrap' }}
+              >
+                Subject
+              </button>
+              {wallpaperSubjectUrl && (
+                <button
+                  type="button"
+                  className={styles.filterBtn}
+                  onClick={() => updateSettings({ wallpaperSubjectUrl: '' })}
+                  style={{ fontSize: 11, padding: '4px 6px', color: '#ef4444' }}
+                >
+                  X
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

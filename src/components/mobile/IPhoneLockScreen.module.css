@@ -30,7 +30,7 @@
 .subject {
   position: absolute;
   inset: 0;
-  background: url('/wallpaper.png') center top / cover no-repeat;
+  background: center top / cover no-repeat;
 }
 
 .wallpaper {
@@ -48,7 +48,8 @@
 .subject {
   z-index: 2;
   pointer-events: none;
-  background-image: url('/wallpaper-subject.png');
+  background-size: cover;
+  background-position: center top;
   transition: opacity 0.4s ease;
 }
 

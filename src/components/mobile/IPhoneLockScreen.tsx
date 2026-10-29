@@ -37,6 +37,8 @@ export function IPhoneLockScreen() {
   const dismissNotification = useSimulationStore((s) => s.dismissNotification);
   const dismissSeedNotification = useSimulationStore((s) => s.dismissSeedNotification);
   const dismissAllNotifications = useSimulationStore((s) => s.dismissAllNotifications);
+  const wallpaperUrl = useSimulationStore((s) => s.settings.wallpaperUrl);
+  const wallpaperSubjectUrl = useSimulationStore((s) => s.settings.wallpaperSubjectUrl);
 
   const [now, setNow] = useState(new Date());
   const [expanded, setExpanded] = useState(false);
@@ -126,7 +128,10 @@ export function IPhoneLockScreen() {
 
   return (
     <div className={`${styles.lockscreen} ${expanded ? styles.expanded : ''}`}>
-      <div className={styles.wallpaper} />
+      <div className={styles.wallpaper} style={{ backgroundImage: `url('${wallpaperUrl}')` }} />
+      {wallpaperSubjectUrl && (
+        <div className={styles.subject} style={{ backgroundImage: `url('${wallpaperSubjectUrl}')` }} />
+      )}
       <div className={styles.depthSubject} aria-hidden />
       <LockScreenStatusBar />
 

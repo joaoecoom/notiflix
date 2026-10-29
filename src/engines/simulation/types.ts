@@ -102,6 +102,8 @@ export interface SimulationSettings {
   /** Lock screen only shows what arrived since the phone was last unlocked */
   lastUnlockMinutesAgo: number;
   maxLockScreenNotifications: number;
+  wallpaperUrl: string;
+  wallpaperSubjectUrl: string;
 }
 
 export interface SimulationScenario {
@@ -209,6 +211,8 @@ export const DEFAULT_SETTINGS: SimulationSettings = {
   notificationRetentionDays: IOS_NOTIFICATION_RETENTION_DAYS_CLASSIC,
   lastUnlockMinutesAgo: 120,
   maxLockScreenNotifications: 30,
+  wallpaperUrl: '/wallpaper.png',
+  wallpaperSubjectUrl: '/wallpaper-subject.png',
 };
 
 export function createEmptyMetrics(): SimulationMetrics {
